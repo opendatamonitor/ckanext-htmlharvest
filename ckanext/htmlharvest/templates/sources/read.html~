@@ -1,0 +1,22 @@
+{% extends "sources/read_base.html" %}
+
+{% block primary_content_inner %}
+  <section class="module-content">
+    <p> It's just for testing at the moment...
+    </p>
+    {% print('%r\n',data) %}
+  </section>
+
+  <section class="module">
+    <div class="module-content">
+    {% block page_primary_action %}
+        <div class="page_primary_action">
+        {{ h.snippet('snippets/add_metaschemaform_button.html', dataset_type=c.dataset_type) }}
+        </div>
+    {% endblock %}
+
+    </div>
+
+    {{ c.page.pager(q=c.q) }}
+  </section>
+{% endblock %}

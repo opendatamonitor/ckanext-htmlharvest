@@ -1,0 +1,114 @@
+from bs4 import BeautifulSoup
+import urllib2
+import requests
+import time
+from xml.dom.minidom import parseString
+import re
+import difflib
+import json
+import logging
+import pymongo
+import bson
+
+i=0
+j=0
+k=0
+found=False
+
+#SERVER_URL = 'http://127.0.0.1:5984'
+client = pymongo.MongoClient("192.168.10.112", 27017)
+text_file = open("/var/local/ckan/default/pyenv/src/ckanext-metaschemaform/ckanext/metaschemaform/find.txt", "a")
+def AutoFindingElements(url):
+ 
+  try:
+		#Database Connection
+		client = pymongo.MongoClient("192.168.10.112", 27017)
+		db = client.odm
+		collection=db.possible_labels
+		post_id=bson.ObjectId("537205927fd8852efdaf217c")
+		possiblelabels=collection.find_one({"_id":post_id})
+		
+		labelLicense=possiblelabels['license']
+		labelTags=possiblelabels['tags']
+		labelcategory=possiblelabels['category']
+		labelcontactpoint=possiblelabels['contactpoint']
+		labeldate=possiblelabels['date']
+		labelenddate=possiblelabels['enddate']
+		labelfrequency=possiblelabels['frequency']
+		#labellanguage=possiblelabels['language']
+		labelmaintainer=possiblelabels['maintainer']
+		labelnotes=possiblelabels['notes']
+		labelpublisher=possiblelabels['publisher']
+		text_file.write("\n"+"------------->"+str(labelpublisher))
+		labelresource=possiblelabels['resource']
+		labelupdatedate=possiblelabels['updatedate']
+		labelversion=possiblelabels['version']
+		labelgeographiccoverage=possiblelabels['geographic_coverage']
+		labeltemporalcoverage=possiblelabels['temporal_coverage']
+
+		r  = requests.get(url)
+		data2 = r.text
+		soup2 = BeautifulSoup(data2)
+		
+		#-- make a list of all data in page
+		soup3=soup2.findAll(text=True)
+	
+		labelLicense1=AutoLabelFinder(soup3,labelLicense,j,k,found)
+		labelTags1=AutoLabelFinder(soup3,labelTags,j,k,found)
+		labelcategory1=AutoLabelFinder(soup3,labelcategory,j,k,found)
+		labelcontactpoint1=AutoLabelFinder(soup3,labelcontactpoint,j,k,found)
+		labeldate1=AutoLabelFinder(soup3,labeldate,j,k,found)
+		labelenddate1=AutoLabelFinder(soup3,labelenddate,j,k,found)
+		labelfrequency1=AutoLabelFinder(soup3,labelfrequency,j,k,found)
+		#labellanguage1=AutoLabelFinder(soup3,labellanguage,j,k,found)
+		labelmaintainer1=AutoLabelFinder(soup3,labelmaintainer,j,k,found)
+		labelnotes1=AutoLabelFinder(soup3,labelnotes,j,k,found)
+		labelpublisher1=AutoLabelFinder(soup3,labelpublisher,j,k,found)
+		labelresource1=AutoLabelFinder(soup3,labelresource,j,k,found)
+		labelupdatedate1=AutoLabelFinder(soup3,labelupdatedate,j,k,found)
+		labelversion1=AutoLabelFinder(soup3,labelversion,j,k,found)
+		labelgeographiccoverage1=AutoLabelFinder(soup3,labelgeographiccoverage,j,k,found)
+		labeltemporalcoverage1=AutoLabelFinder(soup3,labeltemporalcoverage,j,k,found)
+		
+		
+		
+		
+  except urllib2.HTTPError, e:
+		print('httperror')
+		
+  json={"license":str(labelLicense1[0].encode('utf-8')),"tags":str(labelTags1[0].encode('utf-8')),"category":str(labelcategory1[0].encode('utf-8')),"contactpoint":str(labelcontactpoint1[0].encode('utf-8'))
+		,"date":str(labeldate1[0].encode('utf-8')),"enddate":str(labelenddate1[0].encode('utf-8')),"geographic_coverage":str(labelgeographiccoverage1[0].encode('utf-8'))
+		,"temporal_coverage":str(labeltemporalcoverage1[0].encode('utf-8')),"frequency":str(labelfrequency1[0].encode('utf-8'))
+		,"language":str(labellanguage1[0].encode('utf-8')),"maintainer":str(labelmaintainer1[0].encode('utf-8')),"notes":str(labelnotes1[0].encode('utf-8')),"publisher":str(labelpublisher1[0].encode('utf-8'))
+		,"resource":str(labelresource1[0].encode('utf-8')),"updatedate":str(labelupdatedate1[0].encode('utf-8')),"version":str(labelversion1[0].encode('utf-8'))}
+  #print(json)
+  return json
+
+		
+def AutoLabelFinder(soup3,label,j,k,found):
+
+	while j<len(label):				
+			while k<len(soup3):
+					
+				if label[j] in soup3[k]:
+				
+					label[j]=soup3[k]
+					found=True
+				k=k+1
+			k=0
+			if found==False: 
+				del label[j]
+				 
+			if found==True:
+			  j=j+1
+			  found=False
+	j=0
+ 	l=0
+	while l<len(label):
+		label[l]=label[l].rstrip()
+		l+=1
+	if len(label)==0:
+	  label.append("")
+	return label
+
+		

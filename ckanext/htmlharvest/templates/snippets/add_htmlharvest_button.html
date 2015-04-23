@@ -1,0 +1,24 @@
+{% set authorized_user = h.check_access('harvest_source_create') %}
+ 
+{% if authorized_user %}
+    <form action="../">
+        <label class="radio">
+                 <input type="radio" value={{ app_globals.site_url ~"/harvest/new"}} name="button_harvester_type" id="navRadio01" checked>CKAN</input>
+            </label>
+        <label class="radio">
+        <input type="radio" value={{ app_globals.site_url ~"/htmlharvest1"}} name="button_harvester_type" id="navRadio02">HTML
+            </label><br>
+        
+        <input type="button" value="Next" class="btn-primary btn"
+                 onclick="ob=this.form.button_harvester_type;for(i=0;i<ob.length;i++){
+                 if(ob[i].checked){window.open(ob[i].value,'_top');};}">
+        </input>
+    </form>    
+{% endif %}
+
+{#
+<a href="{{ h.url_for('{0}/new_custom'.format(dataset_type)) }}" class="btn btn-primary">
+    <i class="icon-plus-sign-alt"></i>
+      {{ _('Add Custom MetaHarvest Source') }}
+  </a>
+#}

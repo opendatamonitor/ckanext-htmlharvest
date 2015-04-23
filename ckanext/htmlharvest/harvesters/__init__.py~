@@ -1,0 +1,3 @@
+
+from ckanext.htmlharvester.harvesters.htmlharvester import HTMLHarvester
+from ckanext.harvest.harvesters.base import HarvesterBase

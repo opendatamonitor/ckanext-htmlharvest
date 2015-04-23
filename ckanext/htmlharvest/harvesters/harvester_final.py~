@@ -1,0 +1,314 @@
+from bs4 import BeautifulSoup
+import urllib2
+import urllib
+import pprint
+import requests
+import time
+from xml.dom.minidom import parseString
+import re
+import difflib
+import json
+import bson
+import logging
+import SaveLabels
+import pymongo
+import AddToCkan
+import uuid
+import hashlib
+import AddNoLabelToJson
+import AddLabelToJson
+import AddLinkToJson
+import HarvestProcedure
+
+#-added by theo
+text_file = open("/var/local/ckan/default/pyenv/src/ckanext-htmlharvest/ckanext/htmlharvest/harvesters/find1.txt", "a")
+text_file1 = open("/var/local/ckan/default/pyenv/src/ckanext-htmlharvest/ckanext/htmlharvest/harvesters/backup.txt", "a")
+#--list of non label data
+# list of label data
+
+ahref=""
+#-- edited by user--#
+#--list of non label data
+nonlabel=[]
+a_link=[]
+# list of label data
+label=[]
+ids=[]
+ids1=[]
+links=[]
+all_ids=[]
+parent_attrs_list=[]
+parent_name_list=[]
+parent_name_list1=[]
+parent_attrs_list1=[]
+commands=[]
+
+
+next=""
+endpoint=""
+url=""
+step=""
+mainurl=""
+dataset_keyword=""
+dataset_keyword1=""
+
+#-- after id is for sites that use a pattern like data.gouv.fr/id=1/something else  (afterid==something else)
+afterid=""
+#-- /end of data edited by user
+
+#-- list for labels
+labels=[]
+labelshigher=[]
+labelshighest=[]
+ids=[]
+
+log = logging.getLogger(__name__)
+client = pymongo.MongoClient("192.168.10.112", 27017)
+
+
+def StartHarvestProcedure(commands,label,links,url,step,afterid,endpoint,dataset_keyword,dataset_keyword1,ckannotes,ckanlicense,ckanresource,ckantags,ckancontactpoint,ckanpublisher,ckantitle,ckanExtrasUpdateDate,
+ckanExtrasCategory,ckanExtrasFrequency,ckanExtrasLanguage,ckanExtrasVersion,ckanMaintainer,ckanExtrasDate,ckangeographiccoverage,ckantemporalcoverage,backupi):
+	
+	text_file.write('this is non label :'+str(nonlabel))
+	if backupi>0:
+	  i=backupi
+	else:  
+	  i=0
+	j=0
+	k=0
+	l=0
+	type1=""
+	mainurl1=url[url.find('http://')+7:]
+	mainurl='http://'+mainurl1[0:mainurl1.find('/')]
+	jason="{"
+	ckanjason='{'
+	dbname=mainurl1[0:mainurl1.find('/')]
+	dbname1=dbname.replace('.','_')
+	print(str(dbname))
+	soup1=endpoint
+	db = client.odm
+	
+	
+	try:
+	  db1=db.odm
+	  #exec(db2)
+ 
+	except AttributeError as e:
+	        log.warn('error: {0}', e)	
+
+	
+	
+# klisi tis harvest procedure:
+	
+	HarvestProcedure.ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,ckanjason,commands,ckannotes,ckanlicense,ckanresource,ckantags,ckancontactpoint,ckanpublisher,j,label,k,a_link,
+			  links,type1,jason,db1,endpoint,url,i,afterid,step,ckantitle,ckanExtrasUpdateDate,ckanExtrasCategory,ckanExtrasFrequency,ckanExtrasLanguage,ckanExtrasVersion,ckanMaintainer,ckanExtrasDate
+			  ,ckangeographiccoverage,ckantemporalcoverage)
+
+
+
+def read_data(temp_id,backupi):
+        
+	db2 = client.odm
+	collection=db2.jobs
+	post_id=bson.ObjectId(temp_id)
+	job=collection.find_one({"_id":post_id})
+	
+	
+	url1=str(job['url'])
+	url=str(job['cat_url'].encode('utf-8'))
+	#print(str(url))
+	
+	id1=str(job['step'])
+	afterid=str(job['afterurl'])
+	#endpoint=str(job['next'].encode('utf-8'))
+	
+	
+	#name=job['name']
+	dataset_keyword2=str(job['identifier'])
+	if ',' in dataset_keyword2:
+		dataset_keyword3=dataset_keyword2.split(',')
+		dataset_keyword=dataset_keyword3[0]
+		dataset_keyword1=dataset_keyword3[1]
+		#print(str(dataset_keyword+' '+dataset_keyword1))
+	else:
+		dataset_keyword=dataset_keyword2
+		dataset_keyword1="nothingatall"
+
+	#print('key: '+str(dataset_keyword))
+	title=job['title']
+	title1=title.split('@/@')
+	if title1[0]!="":
+	  commands.append(title1[0])
+	ckantitle=title1[0]
+
+	notes=job['notes']	
+	notes1=notes.split('@/@')
+	if notes1[1]=='value' and notes1[0]!='':
+		commands.append(notes1[0])
+	if notes1[1]=='label' and notes1[0]!='':
+		label.append(notes1[0])
+	if notes1[1]=='link' and notes1[0]!='':
+		links.append(notes1[0])
+	ckannotes=notes1[0]
+	
+	publisher=job['publisher'] 
+	publisher1=publisher.split('@/@')
+	if publisher1[1]=='value' and publisher1[0]!='':
+		commands.append(publisher1[0])
+	if publisher1[1]=='label' and publisher1[0]!='':
+		label.append(publisher1[0])
+	if publisher1[1]=='link' and publisher1[0]!='':
+		links.append(publisher1[0])
+	ckanpublisher=publisher1[0]
+	
+	geographic_coverage=job['geographic_coverage'] 
+	geographic_coverage1=geographic_coverage.split('@/@')
+	if geographic_coverage1[1]=='value' and geographic_coverage1[0]!='':
+		commands.append(geographic_coverage1[0])
+	if geographic_coverage1[1]=='label' and geographic_coverage1[0]!='':
+		label.append(geographic_coverage1[0])
+	if geographic_coverage1[1]=='link' and geographic_coverage1[0]!='':
+		links.append(geographic_coverage1[0])
+	ckangeographiccoverage=geographic_coverage1[0]
+	
+	temporal_coverage=job['temporal_coverage'] 
+	temporal_coverage1=temporal_coverage.split('@/@')
+	if temporal_coverage1[1]=='value' and temporal_coverage1[0]!='':
+		commands.append(temporal_coverage1[0])
+	if temporal_coverage1[1]=='label' and temporal_coverage1[0]!='':
+		label.append(temporal_coverage1[0])
+	if temporal_coverage1[1]=='link' and temporal_coverage1[0]!='':
+		links.append(temporal_coverage1[0])
+	ckantemporalcoverage=temporal_coverage1[0]
+	
+	date=job['date'] 
+	date1=date.split('@/@')
+	if date1[1]=='value' and date1[0]!='':
+		commands.append(date1[0])
+	if date1[1]=='label' and date1[0]!='':
+		label.append(date1[0])
+	if date1[1]=='link' and date1[0]!='':
+		links.append(date1[0])
+	ckanExtrasDate=date1[0]
+
+	contactpoint=job['contactpoint'] 
+	contactpoint1=contactpoint.split('@/@')
+	if contactpoint1[1]=='value' and contactpoint1[0]!='':
+		commands.append(contactpoint1[0])
+	if contactpoint1[1]=='label' and contactpoint1[0]!='':
+		label.append(contactpoint1[0])
+	if contactpoint1[1]=='link' and contactpoint1[0]!='':
+		links.append(contactpoint1[0])
+	ckancontactpoint=contactpoint1[0]
+
+	tags=job['tags']
+	tags1=tags.split('@/@')
+	if tags1[1]=='value' and tags1[0]!='':
+		commands.append(tags1[0])
+	if tags1[1]=='label' and tags1[0]!='':
+		label.append(tags1[0])
+	if tags1[1]=='link' and tags1[0]!='':
+		links.append(tags1[0])
+	ckantags=tags1[0]
+
+	resource=job['resource'] 
+	resource1=resource.split('@/@')
+	if resource1[1]=='value' and resource1[0]!='':
+		commands.append(resource1[0])
+	if resource1[1]=='label' and resource1[0]!='':
+		label.append(resource1[0])
+	if resource1[1]=='link' and resource1[0]!='':
+		links.append(resource1[0])	
+	ckanresource=resource1[0]	
+	
+	licence=job['license']	
+	licence1=licence.split('@/@')
+	if licence1[1]=='label' and licence1[0]!='':
+		label.append(licence1[0])
+	if licence1[1]=='value' and licence1[0]!='':
+		commands.append(licence1[0])
+	if licence1[1]=='link' and licence1[0]!='':
+		links.append(licence1[0])
+	ckanlicense=licence1[0]
+
+	updatedate=job['updatedate'] 
+	updatedate1=updatedate.split('@/@')
+	if updatedate1[1]=='value' and updatedate1[0]!='':
+		commands.append(updatedate1[0])
+	if updatedate1[1]=='label' and updatedate1[0]!='':
+		label.append(updatedate1[0])
+	if updatedate1[1]=='link' and updatedate1[0]!='':
+		links.append(updatedate1[0])
+	ckanExtrasUpdateDate=updatedate1[0]
+
+	enddate=job['enddate'] 
+	enddate1=enddate.split('@/@')
+	if enddate1[1]=='value' and enddate1[0]!='':
+		commands.append(enddate1[0])
+	if enddate1[1]=='label' and enddate1[0]!='':
+		label.append(enddate1[0])
+	if enddate1[1]=='link' and enddate1[0]!='':
+		links.append(enddate1[0])
+	# add to ckan implemntation??
+	
+	category=job['category'] 
+	category1=category.split('@/@')
+	if category1[1]=='value' and category1[0]!='':
+		commands.append(category1[0])
+	if category1[1]=='label' and category1[0]!='':
+		label.append(category1[0])
+	if category1[1]=='link' and category1[0]!='':
+		links.append(category1[0])
+	ckanExtrasCategory=category1[0]
+	
+	
+	frequency=job['frequency'] 
+	frequency1=frequency.split('@/@')
+	if frequency1[1]=='value' and frequency1[0]!='':
+		commands.append(frequency1[0])
+	if frequency1[1]=='label' and frequency1[0]!='':
+		label.append(frequency1[0])
+	if frequency1[1]=='link' and frequency1[0]!='':
+		links.append(frequency1[0])
+	ckanExtrasFrequency=frequency1[0]
+	
+	
+	language=job['language'] 
+	#language1=language.split('@/@')
+	#if language1[1]=='value' and language1[0]!='':
+	#	commands.append(language1[0])
+	#if language1[1]=='label' and language1[0]!='':
+	#label.append(language)
+	#if language1[1]=='link' and language1[0]!='':
+	#	links.append(language1[0])
+	ckanExtrasLanguage=language
+	
+	
+	version=job['version'] 
+	version1=version.split('@/@')
+	if version1[1]=='value' and version1[0]!='':
+		commands.append(version1[0])
+	if version1[1]=='label' and version1[0]!='':
+		label.append(version1[0])
+	if version1[1]=='link' and version1[0]!='':
+		links.append(version1[0])
+	ckanExtrasVersion=version1[0]
+	
+	maintainer=job['maintainer'] 
+	maintainer1=maintainer.split('@/@')
+	if maintainer1[1]=='value' and maintainer1[0]!='':
+		commands.append(maintainer1[0])
+	if maintainer1[1]=='label' and maintainer1[0]!='':
+		label.append(maintainer1[0])
+	if maintainer1[1]=='link' and maintainer1[0]!='':
+		links.append(maintainer1[0])
+	ckanMaintainer=maintainer1[0]
+	
+	
+
+	step=int(id1)
+	
+	StartHarvestProcedure(commands,label,links,url,step,afterid,endpoint,dataset_keyword,dataset_keyword1,ckannotes,ckanlicense,ckanresource,ckantags,ckancontactpoint,ckanpublisher,ckantitle,ckanExtrasUpdateDate,ckanExtrasCategory
+	,ckanExtrasFrequency,ckanExtrasLanguage,ckanExtrasVersion,ckanMaintainer,ckanExtrasDate,ckangeographiccoverage,ckantemporalcoverage,backupi)
+#telos NoLabelData()
+	   
