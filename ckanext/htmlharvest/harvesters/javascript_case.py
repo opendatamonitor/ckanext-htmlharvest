@@ -52,7 +52,10 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
 		i=0
 		while i<len(links):
 		  try:
-			link=str(links[i].get('href'))
+			if mainurl=="http://opendata.terrassa.cat":
+				link=str(links[i].get('onclick')).replace('showPopup("','').replace('");','')
+			else:
+				link=str(links[i].get('href'))
 		  except:
 			link="" 
 			
@@ -61,10 +64,16 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
 			  if mainurl=='datos.ua.es':
 				link=mainurl+'/en/'+link
 			  else:
-				if mainurl[0]!='/':
-				  link=mainurl+'/'+link
+				if mainurl=="http://data.fingal.ie":
+					link=mainurl+'/ViewDataSets/'+link
 				else:
-				  link=mainurl+link
+					if mainurl=="http://opendata.bruxelles.be":
+						link=mainurl+'/explore/'+link+'/?tab=metas'	
+					else:
+						if link[0]!='/':
+						  link=mainurl+'/'+link
+						else:
+						  link=mainurl+link
 			dataset_urls.append(link)
 		  i+=1
 		  

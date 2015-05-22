@@ -5,6 +5,7 @@ import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.model as model
 from ckanext.harvestodm.logic.action.create import harvest_source_create
+from ckan.logic import ValidationError
 from ckan.lib.base import c
 
 from ckan.model import Session, Package
@@ -21,6 +22,7 @@ import pymongo
 import bson
 import MetadataFinder
 import sys
+import ckan.plugins.toolkit as toolkit
 #reload(sys)
 #sys.setdefaultencoding("utf-8")
 ##---------------------------------------------
@@ -107,6 +109,14 @@ class CustomHtmlHarvestController(PackageController):
 	    try:
 	    	#cat_url=data['cat_url']
 		notes=data['notes']
+		title=data['title']
+		if notes=="":
+		  errors ="Description is a required field "
+		  if title=="":
+			  errors =errors+", Invalid title "
+		  vars = {'data': data, 'errors': str(errors)}
+		  
+		  return render('htmlharvest.html', extra_vars=vars)
 	    except KeyError:
 		#cat_url=""
 		notes=""
@@ -118,10 +128,15 @@ class CustomHtmlHarvestController(PackageController):
 		data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(request.POST))))
 	    else:
 		errors=''
-		url=str(data['url'])
+		
 		language=str(data['language'])
 		step=str(data['step'])	
 		cat_url=str(data['cat_url'].encode('utf-8'))
+		url=str(data['url'])
+		if 'http' not in cat_url and len(url)<8:
+		  errors= "Invalid Catalogue URL, "
+		if 'http' not in url or len(url)<8:
+		  errors =errors+"Invalid Dataset's URL, "
 		after_url=str(data['afterurl'].encode('utf-8'))
 		catalogue_date_created=str(data['catalogue_date_created'])
 		catalogues_description=str(data['catalogues_description'])
@@ -129,11 +144,20 @@ class CustomHtmlHarvestController(PackageController):
 		identifier=str(data['identifier'])
 		catalogue_country=str(data['catalogue_country'])
 		catalogue_title=str(data['catalogue_title'])
+		if catalogue_title=="":
+		  errors =errors+" Invalid Title"
 		harvest_frequency=str(data['harvest_frequency'])
 		btn_identifier=str(data['btn_identifier'])
 		action_type=str(data['action_type'])
-
-		autofind=AutoMetadataFinder.AutoFindingElements(url)
+		if errors!='':
+		  vars = {'data': data, 'errors': str(errors.rstrip(', ')+'.')}
+		  return render('htmlharvest1.html', extra_vars=vars)
+		try:
+		  autofind=AutoMetadataFinder.AutoFindingElements(url)
+		except:
+		  errors =errors+"Invalid Dataset's URL, "
+		  vars = {'data': data, 'errors': str(errors.rstrip(', ')+'.')}
+		  return render('htmlharvest1.html', extra_vars=vars)
 
 
 		
@@ -213,6 +237,10 @@ class CustomHtmlHarvestController(PackageController):
 		    after_url=data['afterurl']
 		  #  next=data['next']
 		    title=data['title']
+		    if title=="":
+			  errors ="Invalid title "
+			  vars = {'data': data, 'errors': str(errors)}
+			  return render('htmlharvest.html', extra_vars=vars)
 			
 		    #url=str(data['url'])
 		    language=str(data['language'])
@@ -375,7 +403,12 @@ class CustomHtmlHarvestController(PackageController):
 
 		    #AddResourceToCkan.AddResourceToCkan(dataset_dict)
 		    context = {'model': model, 'session': Session, 'user': u'admin','message': '','save': True}
-		    harvest_source_create(context,dataset_dict)
+		    try:
+			  harvest_source_create(context,dataset_dict)
+		    except toolkit.ValidationError as ex:
+			  print(ex)
+			  vars = {'data': data, 'errors': str(ex)}
+			  return render('htmlharvest1.html', extra_vars=vars)
 		    #dataset_dict.update({'catalogue_date_created':str(catalogue_date_created),'catalogue_date_updated':str(catalogue_date_updated),'catalogue_country':str(catalogue_country)})
 		    
 

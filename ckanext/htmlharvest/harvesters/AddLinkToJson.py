@@ -67,6 +67,15 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 				parent=str(soup3[x].parent.parent.parent)
 			if mainurl=="http://transparencia.castillalamancha.es":
 				parent=str(soup3[x].parent.parent.parent.parent)
+			if mainurl=="http://opendata.terrassa.cat":
+				parent=str(soup3[x].parent.parent.parent)
+                        if mainurl=="http://opendata.elprat.cat":
+				parent=str(soup3[x].parent.parent.parent)
+                        if mainurl=="http://opendata.santfeliu.cat":
+				parent=str(soup3[x].parent.parent.parent)
+			if mainurl=="http://opendata.badalona.cat":
+				parent=str(soup3[x].parent.parent.parent)
+
 			parent1=BeautifulSoup(parent)
 			
 			parent2=parent1.find_all(text=True)
@@ -137,7 +146,7 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 
 					if counter<len(parent3)-1:
 						if string_matching>=0.9:
-							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or 'xml' in url_temp or 'json' in url_temp or 'zip' in url_temp or 'doc' in url_temp or 'txt' in url_temp  or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp:
+							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or 'xml' in url_temp or 'json' in url_temp or 'zip' in url_temp or 'doc' in url_temp or 'txt' in url_temp  or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp or 'wfs' in url_temp or 'shape' in url_temp or 'gml' in url_temp or 'kml' in url_temp or 'wms' in url_temp or 'kmz' in url_temp:
 								type1,filesize=CheckTypeAndFilesize(url_temp)
 								url_temp1=str(parent3[counter]['href'].encode('utf-8').lstrip())
 								if 'http://' not in url_temp1 and 'https://' not in url_temp1:
@@ -165,7 +174,7 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 
 					else:
 						if string_matching>=0.9:
-							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or 'xml' in url_temp or 'json' in url_temp or 'zip' in url_temp  or 'txt' in url_temp or 'doc' in url_temp or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp:
+							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or 'xml' in url_temp or 'json' in url_temp or 'zip' in url_temp  or 'txt' in url_temp or 'doc' in url_temp or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp or 'wfs' in url_temp or 'shape' in url_temp or 'gml' in url_temp or 'kml' in url_temp or 'wms' in url_temp or 'kmz' in url_temp:
 								type1,filesize=CheckTypeAndFilesize(url_temp)
 								url_temp1=str(parent3[counter]['href'].encode('utf-8').lstrip().lower())
 								if 'http://' not in url_temp1 and 'https://' not in url_temp1:
@@ -227,8 +236,8 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 	j=j+1
   ckanjason=ckanjason+"]"
   if mainurl=="http://opendata.euskadi.eus":
-	ckanjason=ckanjason.replace(",Lege-informazioa'","")
-  return ckanjason.replace("},]","}]").replace("]]","]").replace(",]","")
+	ckanjason=ckanjason.replace(",Lege-informazioa'","").replace(",Lege informazioa'","").replace(",CC-byInformaci\xc3\xb3n legal'","").replace(",Informaci\xc3\xb3n legal'","").replace(",None'","")
+  return ckanjason.replace("},]","}]").replace("]]","]").replace(",]","").replace(",,",",")
 
 
 def CheckTypeAndFilesize(url_temp):

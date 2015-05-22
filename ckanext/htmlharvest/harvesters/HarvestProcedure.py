@@ -66,9 +66,6 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
   text_file_maintainer_mails=open('/var/local/ckan/default/pyenv/src/ckanext-htmlharvest/ckanext/htmlharvest/harvesters/maintainer_emails.txt', "a")
   print(mainurl)
   log.info('Started')
-  if step=="":
-	step=0
-  print("***")
   print(url)
   if ',' in url:
 	 url=url.replace('\n','').replace('\r','').rstrip(',')
@@ -83,6 +80,9 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 		try:
 			print("_----->>>>"+'/n')
 			#log.info("Harvesting of Catalogue: "+str(mainurl)+" started.")
+			if step=="":
+				step=""
+				i=""
 			url1=str(cat_urls[count])+str(i)+str(afterid)
 			log.info("Searching url: "+str(url1)+" for datasets.")
 			print(url1)
@@ -99,7 +99,7 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 			  string_matching=difflib.SequenceMatcher(None,soup1,str(harvested_pages[h])).ratio()
 			  #print("--------------------------->"+str(string_matching)+'\n')
 			  print("string_matching: "+str(string_matching))
-			  if string_matching>=0.945 and i>1:
+			  if (string_matching>=0.995 and i>1) or (string_matching>=0.995 and i>=0 and step==""):
 				  print('Harvester gather procedure finished..')
 				  #log.info("Harvesting of Catalogue: "+str(mainurl)+" finished.")
 				  #log.info(" "+str(counter)+" datasets harvested and stored to Ckan and MongoDb")
@@ -155,7 +155,10 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 					  url2=mainurl+'/Seiten/'+ahref
 					if 'https://open.nrw' in cat_urls[count]:
 					  url2=mainurl+'open.nrw'+ahref
-
+					if 'http://www.valencia.es' in cat_urls[count]:
+					  url2="http://www.valencia.es/ayuntamiento/datosabiertos.nsf"+ahref[1:]
+					if 'tirol.gv.at' in cat_urls[count]:
+					  url2="https://www.tirol.gv.at/"+ahref
 					if url2 not in harvested_urls:
 
 						log.info('Dataset with url: '+str(url2)+' found.')
@@ -170,14 +173,16 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 			#jason="{"
 			print('i: ='+str(+i))
 		if LastLinkCounter==1:
-		  i=i+step
+		  if step!="":
+			i=i+step
 		  LastLinkCounter=0
 
 		  LinkCounter=0
 		else:
 		  if LinkCounter<=3:
 			LastLinkCounter=0
-			i=i+step
+			if step!="":
+			  i=i+step
 			LinkCounter+=1
 		  else:
 			text_file1 = open(str(backup_file_path), "w")

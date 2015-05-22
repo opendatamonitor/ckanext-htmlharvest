@@ -171,7 +171,7 @@ ckanstate,ckancity)
   try:
 
 	exec(ckanjson1)
-	if 'author' in ckanjson2.keys() or 'notes' in ckanjson2.keys() or 'license_id' in ckanjson2.keys() or 'tags' in ckanjson2.keys() or 'author_email' in ckanjson2.keys(): #or len(ckanjson2['resources'])>0:
+	if 'author' in ckanjson2.keys() or len(ckanjson2['extras'])>=2 or 'license_id' in ckanjson2.keys() or 'tags' in ckanjson2.keys() or 'author_email' in ckanjson2.keys(): #or len(ckanjson2['resources'])>0:
 		try:
 		  try:
 			  #AddToCkan.AddtoCkan(ckanjson2)
@@ -187,6 +187,7 @@ ckanstate,ckancity)
 				if len(ckanjson2.keys())>1:
 				  document=db1.find_one({"id":temp_id})
 				  met_created=document['metadata_created']
+				  ckanjson2.update({'updated_dataset':True})
 				  ckanjson2.update({'metadata_created':met_created})
 				  ckanjson2.update({'metadata_updated':str(datetime.datetime.now())})
 				  db1.remove({"id":temp_id})

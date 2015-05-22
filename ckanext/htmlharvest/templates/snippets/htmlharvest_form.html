@@ -21,7 +21,14 @@ action='read_data') %}
 
   {{ form.errors(error_summary) }}
 
-  
+  {% block errors %}
+
+  {% if (not errors) and error_summary %}
+  {% elif errors %}
+  <div class="alert alert-error">{{ errors }}</div>
+  {% endif %}
+
+{% endblock %} 
   
   <input name="id" value="{{ data.id }}" type="hidden"/>
   <input name="catalogues_description" value="{{ data.catalogues_description }}" type="hidden"/>
@@ -46,12 +53,12 @@ action='read_data') %}
   
     {% block metadata_fields %}
         {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), 
-            value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+            value=data.title, error=errors.title1, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
         <br></br> 
         {% block basic_fields_description %}
             {{ form.markdown('notes', id='field-notes', label=_('Description'),
             placeholder=_('Some useful notes about the data'),
-            value=data.description, error=errors.description) }}
+            value=data.description, error=errors.description1) }}
         
             {{ form.select('notes_feature', id='field-notes_feature',
             label=_('Feature'), options=[{ "value": "label", "text": "Label" },
@@ -162,7 +169,7 @@ action='read_data') %}
 <br></br>
         
         {{ form.input('tags', id='field-title', label=_('Keywords/Tags'), 
-            value=data.tags, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+            value=data.tags, error=errors.tags, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
         {{ form.select('tags_feature', id='field-notes_feature',
             label=_('Feature'), options=[{ "value": "label", "text": "Label" },
