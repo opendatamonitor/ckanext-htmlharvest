@@ -54,14 +54,7 @@ def harvest_url(url2,rules):
   except AttributeError as e:
 	log.warn('error: {0}', e)
 	
-  #document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
-   #     {"$match": {"elements": {"$gt":0}}},
-    #    {"$sort":{"elements":-1}}])
-  #j=0
-  #ids=[]
-  #while j<len(document['result']):
-	#ids.append(document['result'][j]['_id'])
-	#j+=1
+
   
   a_link=[]
   type1=""
@@ -186,12 +179,10 @@ ckanstate,ckancity)
 			  ## check if dataset exists in mongodb
 			  document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})
 			  if document==None:
-			  #if temp_id not in ids:
 				db1.save(ckanjson2)
 				log.info('Metadata stored succesfully to MongoDb.')
 			  else:
 				if len(ckanjson2.keys())>1:
-				  #document=db1.find_one({"id":temp_id})
 				  met_created=document['metadata_created']
 				  ckanjson2.update({'updated_dataset':True})
 				  ckanjson2.update({'metadata_created':met_created})
@@ -232,7 +223,6 @@ ckanstate,ckancity)
 			  ## check if dataset exists in mongodb
 			  document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})	
 			  if document==None:		
-			  #if temp_id not in ids:
 				db1.save(ckanjsonWithoutTags2)
 				log.info('Metadata without tags stored succesfully to MongoDb.')
 			  try:

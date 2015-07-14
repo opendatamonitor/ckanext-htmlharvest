@@ -44,12 +44,7 @@ def harvest_rdf(url2,rules):
 
   except AttributeError as e:
 	log.warn('error: {0}', e)
-	
-  #document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
-       # {"$match": {"elements": {"$gt":0}}},
-        #{"$sort":{"elements":-1}}])
-  #j=0
-  #ids=[]
+
   
   print("dataset url: "+str(url2))
   
@@ -199,14 +194,12 @@ def harvest_rdf(url2,rules):
 	# check if id exists
 	document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})	
 	if document==None:
-	#if temp_id not in ids:
 		try:
 		  db1.save(final_json)
 		  log.info('Metadata stored succesfully to MongoDb.')
 		except: pass
 	else:
 		if len(final_json.keys())>1:
-		  #document=db1.find_one({"id":temp_id})
 		  met_created=document['metadata_created']
 		  final_json.update({'updated_dataset':True})
 		  final_json.update({'metadata_created':met_created})
