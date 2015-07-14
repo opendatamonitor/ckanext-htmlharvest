@@ -152,7 +152,11 @@ class HTMLHarvester(HarvesterBase):
 			dataset_identifier=document['identifier']
 			btn_identifier=document['btn_identifier']
 			action_type=document['action_type']
-			package_ids=javascript_case.ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type)
+			try:
+				sleep_time=document['sleep_time']
+			except:
+				sleep_time=3
+			package_ids=javascript_case.ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,sleep_time)
 			print(package_ids)
 		  else:
 			package_ids=harvester_final.read_data(id1,backupi)

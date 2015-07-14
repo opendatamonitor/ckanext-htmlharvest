@@ -45,17 +45,17 @@ def harvest_rdf(url2,rules):
   except AttributeError as e:
 	log.warn('error: {0}', e)
 	
-  document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
-        {"$match": {"elements": {"$gt":0}}},
-        {"$sort":{"elements":-1}}])
-  j=0
-  ids=[]
+  #document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
+       # {"$match": {"elements": {"$gt":0}}},
+        #{"$sort":{"elements":-1}}])
+  #j=0
+  #ids=[]
   
   print("dataset url: "+str(url2))
   
-  while j<len(document['result']):
-	ids.append(document['result'][j]['_id'])
-	j+=1
+  #while j<len(document['result']):
+	#ids.append(document['result'][j]['_id'])
+	#j+=1
   
 
   ## reading the rules
@@ -196,13 +196,24 @@ def harvest_rdf(url2,rules):
 	final_json.update({'resources':resources})
 	temp_id=str(uuid.uuid3(uuid.NAMESPACE_OID, str(url2)))
 	final_json.update({'id':str(temp_id)})
-	
-	if temp_id not in ids:
+	# check if id exists
+	document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})	
+	if document==None:
+	#if temp_id not in ids:
 		try:
-		  db1=db.odm
 		  db1.save(final_json)
 		  log.info('Metadata stored succesfully to MongoDb.')
 		except: pass
+	else:
+		if len(final_json.keys())>1:
+		  #document=db1.find_one({"id":temp_id})
+		  met_created=document['metadata_created']
+		  final_json.update({'updated_dataset':True})
+		  final_json.update({'metadata_created':met_created})
+		  final_json.update({'metadata_updated':str(datetime.datetime.now())})
+		  db1.remove({"id":temp_id,"catalogue_url":mainurl})
+		  db1.save(final_json)
+		  log.info('Metadata updated succesfully to MongoDb.')
 
 	print(final_json)
 

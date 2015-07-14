@@ -73,7 +73,7 @@ def AddToJson(soup3,label,j,ckannotes,ckanlicense,ckanresource,ckantags,ckanauth
   while j<len(label):
 		
 	for x in range(0,len(soup3)):
-		if label[j] == soup3[x]:
+		if label[j] in soup3[x]:
 		#itan:
 		#if label[j] in soup3[x]:
 

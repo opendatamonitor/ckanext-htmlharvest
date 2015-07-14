@@ -7,8 +7,8 @@ from pyvirtualdisplay import Display
 
 
 # coding=utf-8
-def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
-
+def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,sleep_time):
+  print("sleep_time "+str(sleep_time))
   last_page_parsed=""
   html="html"
   dataset_urls=[]
@@ -18,7 +18,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
   
   browser = webdriver.Firefox()
   browser.get(cat_url)
-  
+  j=0
   ##get main url
   if 'https' not in cat_url:
 	mainurl1=cat_url[cat_url.find('http://')+7:]
@@ -32,6 +32,8 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
     while True:
 	##go to next page
 	  if html!=last_page_parsed:
+		j+=1
+		print(j)
 		try:
 		  btn_identifier=int(btn_identifier)
 		  btn_identifier+=1
@@ -39,7 +41,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
 		except:
 		  pass
 		
-		time.sleep(10)
+		time.sleep(sleep_time)
 		
 		last_page_parsed=html
 		##get next page html code
@@ -76,6 +78,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type):
 						  link=mainurl+link
 			dataset_urls.append(link)
 		  i+=1
+		  
 		  
 		##go to next page (if exists)
 		if action_type=="id":

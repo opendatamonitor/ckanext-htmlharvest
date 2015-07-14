@@ -42,7 +42,9 @@ html_harvester_log_file_path=str(log_path)+'ckanext-htmlharvest/ckanext/htmlharv
 backup_file_path=str(log_path)+'/ckanext-htmlharvest/ckanext/htmlharvest/harvesters/backup.txt'
 mongoclient=config['ckan:odm_extensions']['mongoclient']
 mongoport=config['ckan:odm_extensions']['mongoport']
-
+client = pymongo.MongoClient(str(mongoclient), int(mongoport))
+db2 = client.odm
+collection=db2.html_jobs
 
 def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,ckanjason,commands,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor_email,ckanauthor,j,label,k,a_link,
 			  links,type1,jason,db1,endpoint,url,i,afterid,step,ckantitle,ckandate_updated,ckanExtrasCategory,ckanExtrasFrequency,ckanExtrasLanguage,ckanMaintainer,ckandate_released
@@ -72,9 +74,19 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 	 cat_urls=url.split(',')
   else: cat_urls.append(url)
   print(cat_urls)
-  
+
+  ##custom sensibility cases handling
+  document=collection.find_one({"cat_url":{'$regex': mainurl}})
+  if document!=None:
+  	if 'sensibility' in document.keys():
+	  	sensibility=document['sensibility']
+  	else: sensibility=0.9  
+  else: sensibility=0.9  
+
+  print("sensibility set to: "+str(sensibility))
   count=0
   while count<len(cat_urls):
+	break_count=0
 	while endpoint in soup1:
 
 		try:
@@ -99,14 +111,19 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 			  string_matching=difflib.SequenceMatcher(None,soup1,str(harvested_pages[h])).ratio()
 			  #print("--------------------------->"+str(string_matching)+'\n')
 			  print("string_matching: "+str(string_matching))
-			  if (string_matching>=0.995 and i>1) or (string_matching>=0.995 and i>=0 and step==""):
-				  print('Harvester gather procedure finished..')
-				  #log.info("Harvesting of Catalogue: "+str(mainurl)+" finished.")
-				  #log.info(" "+str(counter)+" datasets harvested and stored to Ckan and MongoDb")
-				  text_file1 = open(str(backup_file_path),"w")
-				  text_file1.write("")
-				  text_file1.close()
-				  found=True
+			  if (string_matching>=sensibility and i>1) or (string_matching>=sensibility and i>=0 and step==""):
+
+				  if break_count<5:
+					  print("*another empty/same page parsed*")
+					  break_count+=1
+				  else:
+					  print('Harvester gather procedure finished..')
+					  #log.info("Harvesting of Catalogue: "+str(mainurl)+" finished.")
+					  #log.info(" "+str(counter)+" datasets harvested and stored to Ckan and MongoDb")
+					  text_file1 = open(str(backup_file_path),"w")
+					  text_file1.write("")
+					  text_file1.close()
+					  found=True
 
 			  h+=1
 			if found==True:break
@@ -143,16 +160,20 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 
 
 					if 'http' not in str(ahref):
-					  if mainurl[-1]=='/' or dataset_keyword[0]=='/':
-						  url2=mainurl+ahref
-					  else:
-						  url2=mainurl+'/'+ahref
+					  try:
+						  if mainurl[-1]=='/' or dataset_keyword[0]=='/':
+							  url2=mainurl+ahref
+						  else:
+							  url2=mainurl+'/'+ahref
+					  except:pass
 					else: url2=ahref
 
 				  ## module for http://opendata.service-bw.de/ because of hidden url
 
 					if 'http://opendata.service-bw.de/' in cat_urls[count]:
 					  url2=mainurl+'/Seiten/'+ahref
+					if 'http://www.statistiques.public.lu' in cat_urls[count]:
+					  url2=mainurl+'/fr/'+ahref
 					if 'https://open.nrw' in cat_urls[count]:
 					  url2=mainurl+'open.nrw'+ahref
 					if 'http://www.valencia.es' in cat_urls[count]:

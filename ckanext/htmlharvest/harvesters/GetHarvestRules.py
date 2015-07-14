@@ -34,10 +34,14 @@ def GetHarvestRules(cat_url):
 	collection=db2.html_jobs
 	
 	##find the cat_url's rules in mongoDB
+	print(cat_url)
 	document=collection.find_one({"cat_url":{'$regex': cat_url}})
-	temp_id=document['_id']
-	post_id=bson.ObjectId(temp_id)
-	job=collection.find_one({"_id":post_id})
+	if document==None:
+		document=collection.find_one({"url":{'$regex': cat_url}})
+	#temp_id=document['_id']
+	#post_id=bson.ObjectId(temp_id)
+	#job=collection.find_one({"_id":post_id})
+	job=document
 
 
 
@@ -45,7 +49,9 @@ def GetHarvestRules(cat_url):
 	rules.update({"url":str(url1)})
 	url=str(job['cat_url'].encode('utf-8'))
 	rules.update({"cat_url":str(url)})
-	rules.update({"btn_identifier":str(job['btn_identifier'])})
+	try:
+		rules.update({"btn_identifier":str(job['btn_identifier'])})
+	except:pass
 	id1=str(job['step'])
 	if id1!=None and id1!="":
 	  rules.update({"step":int(id1)})

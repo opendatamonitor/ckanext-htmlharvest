@@ -3,11 +3,13 @@
 {% if authorized_user %}
     <form action="../">
         <label class="radio">
-                 <input type="radio" value={{ app_globals.site_url ~"/harvest/new"}} name="button_harvester_type" id="navRadio01" checked>CKAN</input>
+                 <input type="radio" value={{ app_globals.site_url ~"/harvest/new"}} name="button_harvester_type" id="navRadio01" checked>CKAN / SOCRATA</input>
             </label>
         <label class="radio">
         <input type="radio" value={{ app_globals.site_url ~"/htmlharvest1"}} name="button_harvester_type" id="navRadio02">HTML
-            </label><br>
+            </label>
+	<label class="radio">
+        <br>
         
         <input type="button" value="Next" class="btn-primary btn"
                  onclick="ob=this.form.button_harvester_type;for(i=0;i<ob.length;i++){

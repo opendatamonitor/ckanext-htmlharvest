@@ -54,14 +54,14 @@ def harvest_url(url2,rules):
   except AttributeError as e:
 	log.warn('error: {0}', e)
 	
-  document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
-        {"$match": {"elements": {"$gt":0}}},
-        {"$sort":{"elements":-1}}])
-  j=0
-  ids=[]
-  while j<len(document['result']):
-	ids.append(document['result'][j]['_id'])
-	j+=1
+  #document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
+   #     {"$match": {"elements": {"$gt":0}}},
+    #    {"$sort":{"elements":-1}}])
+  #j=0
+  #ids=[]
+  #while j<len(document['result']):
+	#ids.append(document['result'][j]['_id'])
+	#j+=1
   
   a_link=[]
   type1=""
@@ -92,7 +92,10 @@ def harvest_url(url2,rules):
   ckanstate=rules['state']
   ckancity=rules['city']
   cat_url=rules['cat_url']
-  btn_identifier=rules['btn_identifier']
+  try:
+  	btn_identifier=rules['btn_identifier']
+  except:
+	btn_identifier=""
   try:
 	rdf=rules['rdf']
   except:
@@ -171,7 +174,8 @@ ckanstate,ckancity)
   try:
 
 	exec(ckanjson1)
-	if 'author' in ckanjson2.keys() or len(ckanjson2['extras'])>=2 or 'license_id' in ckanjson2.keys() or 'tags' in ckanjson2.keys() or 'author_email' in ckanjson2.keys(): #or len(ckanjson2['resources'])>0:
+	if 'author' in ckanjson2.keys()  or 'license_id' in ckanjson2.keys() or 'tags' in ckanjson2.keys() or 'author_email' in ckanjson2.keys() or ('resources' in ckanjson2.keys() and len(ckanjson2['resources'])>0) or len(ckanjson2['extras'])>=3:
+ #or len(ckanjson2['resources'])>0: #or len(ckanjson2['extras'])>=2
 		try:
 		  try:
 			  #AddToCkan.AddtoCkan(ckanjson2)
@@ -180,17 +184,19 @@ ckanstate,ckancity)
 			  ckanjson2.update({'id':str(temp_id)})
 			  content=ckanjson2
 			  ## check if dataset exists in mongodb
-			  if temp_id not in ids:
+			  document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})
+			  if document==None:
+			  #if temp_id not in ids:
 				db1.save(ckanjson2)
 				log.info('Metadata stored succesfully to MongoDb.')
 			  else:
 				if len(ckanjson2.keys())>1:
-				  document=db1.find_one({"id":temp_id})
+				  #document=db1.find_one({"id":temp_id})
 				  met_created=document['metadata_created']
 				  ckanjson2.update({'updated_dataset':True})
 				  ckanjson2.update({'metadata_created':met_created})
 				  ckanjson2.update({'metadata_updated':str(datetime.datetime.now())})
-				  db1.remove({"id":temp_id})
+				  db1.remove({"id":temp_id,"catalogue_url":mainurl})
 				  db1.save(ckanjson2)
 				  log.info('Metadata updated succesfully to MongoDb.')
 		  except :
@@ -224,7 +230,9 @@ ckanstate,ckancity)
 			  ckanjsonWithoutTags2.update({'id':str(temp_id)})
 
 			  ## check if dataset exists in mongodb
-			  if temp_id not in ids:
+			  document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})	
+			  if document==None:		
+			  #if temp_id not in ids:
 				db1.save(ckanjsonWithoutTags2)
 				log.info('Metadata without tags stored succesfully to MongoDb.')
 			  try:
