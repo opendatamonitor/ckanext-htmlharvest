@@ -1,6 +1,0 @@
-
-    [ckan.plugins]
-	# Add plugins here, eg
-	htmlharvest=ckanext.htmlharvest.plugin:HtmlHarvester
-	html_harvester=ckanext.htmlharvest.harvesters:HTMLHarvester
-        
