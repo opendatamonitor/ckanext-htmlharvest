@@ -12,7 +12,7 @@ DATASET_TYPE_NAME = 'htmlharvest'
 
 
 class HtmlHarvester(p.SingletonPlugin, tk.DefaultDatasetForm):
-  
+
     p.implements(p.IConfigurable)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IConfigurer, inherit=True)
@@ -20,7 +20,7 @@ class HtmlHarvester(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IPackageController, inherit=True)
     p.implements(p.ITemplateHelpers)
    # p.implements(p.IFacets, inherit=True)
-  
+
 
     ## IDatasetForm
 
@@ -44,19 +44,22 @@ class HtmlHarvester(p.SingletonPlugin, tk.DefaultDatasetForm):
 
     #def edit_template(self):
         #return 'source/edit.html'
-  
+
     def setup_template_variables(self, context, data_dict):
 
         #p.toolkit.c.harvest_source = p.toolkit.c.pkg_dict
 
         p.toolkit.c.dataset_type = DATASET_TYPE_NAME
- 
+
     def update_config(self, config):
         # check if new templates
         p.toolkit.add_template_directory(config, 'templates')
         p.toolkit.add_public_directory(config, 'public')
 #        p.toolkit.add_resource('fanstatic_library', 'ckanext-harvest')
 #        p.toolkit.add_resource('public/ckanext/harvest/javascript', 'harvest-extra-field')
+        p.toolkit.add_resource('fanstatic', 'jquery_dom_outline')
+        p.toolkit.add_resource('fanstatic', 'htmlharvest')
+
 
      ## ITemplateHelpers
 
@@ -70,7 +73,7 @@ class HtmlHarvester(p.SingletonPlugin, tk.DefaultDatasetForm):
                 #'harvest_source_extra_fields': harvest_helpers.harvest_source_extra_fields,
                 }
 
- 
+
     ## IConfigurable interface ##
 
     def configure(self, config):

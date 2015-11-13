@@ -2,13 +2,8 @@
 
 {% set data = data or {} %}
 {% set errors = errors or {} %}
-{#{% set action = form_action or h.url_for(controller='ckanext.htmlharvest.controllers.package:CustomHtmlHarvestController',
-    action='read_data_', id=pkg_name) %}
-    #}
 {% set action = h.url_for(controller='ckanext.htmlharvest.controllers.package:CustomHtmlHarvestController',
 action='read_data') %}
-
-
 
 
 <form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form">
@@ -45,198 +40,297 @@ action='read_data') %}
 <input name="afterurl" value="{{ data.afterurl}}" type="hidden"/>
 <input name="language" value="{{ data.language }}" type="hidden"/>
 <input name="identifier" value="{{ data.identifier }}" type="hidden"/>
-
+<input name="dataset_identifier_checkbox" value="{{ data.dataset_identifier_checkbox}}" type="hidden" />
    
 
 
     <h1 class="module-heading">{{ _('Metadata to Harvest') }}</h1>
   
     {% block metadata_fields %}
-        {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), 
+    {#    {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), 
             value=data.title, error=errors.title1, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
-        <br></br> 
-        {% block basic_fields_description %}
-            {{ form.markdown('notes', id='field-notes', label=_('Description'),
-            placeholder=_('Some useful notes about the data'),
-            value=data.description, error=errors.description1) }}
-        
-            {{ form.select('notes_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.notes_feature) }} 
-        {% endblock %}
-
-<br></br>       
+#}
 
 
-        {#        {{ form.checkbox('', id='field-label_notes', label=_(''),
-        value=data.label_notes, checked=true)  }}#}
 
-        {{ form.input('author', id='field-publisher', label=_('Author'),  
-            value=data.author, error=errors.author, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
-      
-        {{ form.select('author_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.author_feature) }} 
-<br></br>
-	{{ form.input('maintainer', id='field-last-modified', label=_('Maintainer'), placeholder=_('eg. Maintainer:'), value=data.maintainer,
-        error=errors.maintainer, classes=['control-full']) }}
-        
-      {{ form.select('maintainer_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.maintainer_feature) }}
 
-<br></br>
-	{{ form.input('organization', id='field-organization', label=_('Organization'),  
-            value=data.organization, error=errors.organization, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
-      
-        {{ form.select('organization_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'},{'value':'link', 'text':'Link'}], error=errors.organization_feature) }} 	
 
-<br></br>	 
+
+
+	      <div class="col-lg-12">
+        <div class="panel-group" id="accordion">
+
+
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                  Html
+                </a>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+              <div class="panel-body">
+                
+               	
+
+		        <br></br>
+        <div class="control-group control-custom">
+            <label class="control-label" for="title-id"> {{ _('Title') }}</label>
+            <div class="controls control-full">
+                <input id="field-title" type="text" name="title" value="{{ data.title }}" data-module="slug-preview-target" style="width:85%"/>
+                <div class="input-prepend" >
+                    <label class="checkbox" for="field-title-checkbox">
+                        <input type="checkbox" id="field-title-checkbox" name="title-checkbox"/> <span>{{ _('XPath') }}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+			
+
+			{% block basic_fields_description %}
+			    {{ form.markdown('notes', id='field-notes', label=_('Description'),
+			    placeholder=_('Some useful notes about the data'),
+			    value=data.description, error=errors.description1) }}
+		
+			    {{ form.select('notes_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.notes_feature) }} 
+			{% endblock %}
+
+		<br></br>       
+
+
+			{#        {{ form.checkbox('', id='field-label_notes', label=_(''),
+			value=data.label_notes, checked=true)  }}#}
+
+			{{ form.input('author', id='field-publisher', label=_('Author'),  
+			    value=data.author, error=errors.author, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+		      
+			{{ form.select('author_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.author_feature) }} 
+		<br></br>
+			{{ form.input('maintainer', id='field-last-modified', label=_('Maintainer'), placeholder=_('eg. Maintainer:'), value=data.maintainer,
+			error=errors.maintainer, classes=['control-full']) }}
+		
+		      {{ form.select('maintainer_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.maintainer_feature) }}
+
+		<br></br>
+			{{ form.input('organization', id='field-organization', label=_('Organization'),  
+			    value=data.organization, error=errors.organization, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+		      
+			{{ form.select('organization_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'},{'value':'link', 'text':'Link'}], error=errors.organization_feature) }} 	
+
+		<br></br>	 
 	
-	  {{ form.input('author_email', id='field-title', label=_('Author Email'), 
-            value=data.author_email, error=errors.author_email, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+			  {{ form.input('author_email', id='field-title', label=_('Author Email'), 
+			    value=data.author_email, error=errors.author_email, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-        {{ form.select('author_email_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.author_email_feature) }} 
+			{{ form.select('author_email_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.author_email_feature) }} 
 
-<br></br>	
-	{{ form.input('maintainer_email', id='field-title', label=_('Maintainer Email'), 
-            value=data.maintainer_email, error=errors.maintainer_email, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+		<br></br>	
+			{{ form.input('maintainer_email', id='field-title', label=_('Maintainer Email'), 
+			    value=data.maintainer_email, error=errors.maintainer_email, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-        {{ form.select('maintainer_email_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.maintainer_email_feature) }} 
+			{{ form.select('maintainer_email_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.maintainer_email_feature) }} 
 
-<br></br>
-	{{ form.input('country', id='field-title', label=_('Country'), 
-            value=data.country, error=errors.country, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+		<br></br>
+			{{ form.input('country', id='field-title', label=_('Country'), 
+			    value=data.country, error=errors.country, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-        {{ form.select('country_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.country_feature) }} 
-
-
-<br></br>
-	{{ form.input('state', id='field-title', label=_('State'), 
-            value=data.state, error=errors.state, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
-
-        {{ form.select('state_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.state_feature) }} 
+			{{ form.select('country_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.country_feature) }} 
 
 
-<br></br>
-	{{ form.input('city', id='field-title', label=_('City'), 
-            value=data.city, error=errors.city, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+		<br></br>
+			{{ form.input('state', id='field-title', label=_('State'), 
+			    value=data.state, error=errors.state, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-        {{ form.select('city_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.city_feature) }} 
-
-
+			{{ form.select('state_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.state_feature) }} 
 
 
-<br></br>
-	{{ form.input('temporal_coverage', id='field-title', label=_('Temporal Coverage'), 
-            value=data.temporal_coverage, error=errors.temporal_coverage, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+		<br></br>
+			{{ form.input('city', id='field-title', label=_('City'), 
+			    value=data.city, error=errors.city, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-        {{ form.select('temporal_coverage_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.temporal_coverage_feature) }} 
+			{{ form.select('city_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.city_feature) }} 
 
 
-   <br></br>     
-        {{ form.input('date_released', id='field-date', label=_('Date Released'), value=data.date_released, error=errors.date_released, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-        {{ form.select('date_released_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.date_released_feature) }} 
 
-<br></br>
-	  {{ form.input('date_updated', id='field-last-modified', label=_('Date Updated'), value=data.date_updated,
-        error=errors.date_updated, classes=['control-full']) }}
-        
-      {{ form.select('date_updated_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.date_updated_feature) }}
+		<br></br>
+			{{ form.input('temporal_coverage', id='field-title', label=_('Temporal Coverage'), 
+			    value=data.temporal_coverage, error=errors.temporal_coverage, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
 
-     
+			{{ form.select('temporal_coverage_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.temporal_coverage_feature) }} 
+
+
+		   <br></br>     
+			{{ form.input('date_released', id='field-date', label=_('Date Released'), value=data.date_released, error=errors.date_released, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+
+			{{ form.select('date_released_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.date_released_feature) }} 
+
+		<br></br>
+			  {{ form.input('date_updated', id='field-last-modified', label=_('Date Updated'), value=data.date_updated,
+			error=errors.date_updated, classes=['control-full']) }}
+		
+		      {{ form.select('date_updated_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.date_updated_feature) }}
+
+		     
+		      
+
+		<br></br>
+		
+			{{ form.input('tags', id='field-title', label=_('Keywords/Tags'), 
+			    value=data.tags, error=errors.tags, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
+
+			{{ form.select('tags_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.tags_feature) }} 
+		
+			    {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
+		<br></br>
+		  {#    {{ form.input('resource', id='field-resource', label=_('Resource'),
+		      value=data.resource, error=errors.resource, classes=['control-full']) }}
+		#}
+		      {#
+			 {{ form.select('resource_type', id='field-type', label=_('Resource Type'), 
+		      options=[{'value': 'empty', 'text': _('Select a type…')}],
+		      selected="empty", error=errors.type) }}
+		      #}
+
+
+			<div class="control-group control-custom">
+			    <label class="control-label" for="title-id"> {{ _('Resource') }}</label>
+			    <div class="controls">
+				<input id="field-resource" type="text" name="resource" value="{{ data.resource }}" data-module="slug-preview-target" style="width:85%"/>
+				<div class="input-prepend" >
+				    <label class="checkbox" for="field-resource-checkbox">
+				        <input type="checkbox" id="field-resource-checkbox" name="resource-checkbox"/> <span>{{ _('XPath') }}</span>
+				    </label>
+				</div>
+			    </div>
+			</div>
+
+		      {{ form.select('resource_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'},{'value':'link', 'text':'Link'}], error=errors.resource_feature) }} 
+		<br></br>
+		      {{ form.input('licence', id='field-last-modified', label=_('Licence'),
+		       value=data.license,
+		      error=errors.licence, classes=['control-full']) }}
+
+		      {{ form.select('license_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.license_feature) }} 
+
+		    
+		    <br></br>        
+		      
+		      {{ form.input('category', id='field-last-modified', label=_('Theme/Category'), value=data.category,
+			error=errors.category, classes=['control-full']) }}
+		
+		      {{ form.select('category_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.category_feature) }} 
+		      
+		      
+		       
+		
+		      
+		      
+		 <br></br>
+		      
+		      {{ form.input('frequency', id='field-last-modified', label=_('Frequency'),  value=data.frequency,
+			error=errors.frequency, classes=['control-full']) }}
+		
+		      {{ form.select('frequency_feature', id='field-notes_feature',
+			    label=_('Feature'), options=[{ "value": "label", "text": "Label" },
+			    {'value':'value', 'text':'Value'}], error=errors.frequency_feature) }}
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		<br></br>
+
+		      {#      {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
+		      #}
+
+			
+                {% endblock %}
       
+               </div>
+            </div>
+          </div>
 
-<br></br>
-        
-        {{ form.input('tags', id='field-title', label=_('Keywords/Tags'), 
-            value=data.tags, error=errors.tags, classes=['control-full'], attrs={'data-module': 'slug-preview-target'}) }}
-
-        {{ form.select('tags_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.tags_feature) }} 
-        
-            {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
-<br></br>
-      {{ form.input('resource', id='field-resource', label=_('Resource'),
-      value=data.resource, error=errors.resource, classes=['control-full']) }}
-      {# {{ form.select('resource_type', id='field-type', label=_('Resource Type'), 
-      options=[{'value': 'empty', 'text': _('Select a type…')}],
-      selected="empty", error=errors.type) }}#}
-
-      {{ form.select('resource_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'},{'value':'link', 'text':'Link'}], error=errors.resource_feature) }} 
-<br></br>
-      {{ form.input('licence', id='field-last-modified', label=_('Licence'),
-       value=data.license,
-      error=errors.licence, classes=['control-full']) }}
-
-      {{ form.select('license_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.license_feature) }} 
-
-    
-    <br></br>        
-      
-      {{ form.input('category', id='field-last-modified', label=_('Theme/Category'), value=data.category,
-        error=errors.category, classes=['control-full']) }}
-        
-      {{ form.select('category_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.category_feature) }} 
-      
-      
-       
-        
-      
-      
- <br></br>
-      
-      {{ form.input('frequency', id='field-last-modified', label=_('Frequency'),  value=data.frequency,
-        error=errors.frequency, classes=['control-full']) }}
-        
-      {{ form.select('frequency_feature', id='field-notes_feature',
-            label=_('Feature'), options=[{ "value": "label", "text": "Label" },
-            {'value':'value', 'text':'Value'}], error=errors.frequency_feature) }}
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-<br></br>
-
-      {#      {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
-      #}
-     
-     {{ form.input('rdf', id='field-rdf', label=_('RDF Path'),  value=data.rdf,
-        error=errors.rdf, classes=['control-full']) }}
+	<div class="accordion-group">
+            <div class="accordion-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                  RDF
+                </a>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+              <div class="panel-body">
+               
+               
+		
+    		 {{ form.input('rdf', id='field-rdf', label=_('RDF Path'),  value=data.rdf,
+        		error=errors.rdf, classes=['control-full']) }}
+                
   
-    {% endblock %}
+               </div>
+            </div>
+          </div>	
+
+
+	</div>
+	</div>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     
+  
+    
 
   <div class="form-actions">
       {#  {% block delete_button %}

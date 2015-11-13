@@ -18,6 +18,7 @@ import datetime
 import uuid
 import configparser
 import logging.config
+from lxml import html,etree
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ collection=db2.html_jobs
 
 def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,ckanjason,commands,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor_email,ckanauthor,j,label,k,a_link,
 			  links,type1,jason,db1,endpoint,url,i,afterid,step,ckantitle,ckandate_updated,ckanExtrasCategory,ckanExtrasFrequency,ckanExtrasLanguage,ckanMaintainer,ckandate_released
-			  ,ckancountry,ckantemporalcoverage,ckanorganization,ckanmaintainer_email,ckanstate,ckancity,ids):
+			  ,ckancountry,ckantemporalcoverage,ckanorganization,ckanmaintainer_email,ckanstate,ckancity):
 
   soup1=endpoint
   xtras=[]
@@ -66,14 +67,14 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
   counter=0
   text_file_mails = open('/var/local/ckan/default/pyenv/src/ckanext-htmlharvest/ckanext/htmlharvest/harvesters/emails.txt', "a")
   text_file_maintainer_mails=open('/var/local/ckan/default/pyenv/src/ckanext-htmlharvest/ckanext/htmlharvest/harvesters/maintainer_emails.txt', "a")
-  print(mainurl)
+  #print(mainurl)
   log.info('Started')
-  print(url)
+  #print(url)
   if ',' in url:
 	 url=url.replace('\n','').replace('\r','').rstrip(',')
 	 cat_urls=url.split(',')
   else: cat_urls.append(url)
-  print(cat_urls)
+  #print(cat_urls)
 
   ##custom sensibility cases handling
   document=collection.find_one({"cat_url":{'$regex': mainurl}})
@@ -83,26 +84,32 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
   	else: sensibility=0.9  
   else: sensibility=0.9  
 
-  print("sensibility set to: "+str(sensibility))
+  #print("sensibility set to: "+str(sensibility))
   count=0
   while count<len(cat_urls):
 	break_count=0
 	while endpoint in soup1:
 
 		try:
-			print("_----->>>>"+'/n')
+			#print("_----->>>>"+'/n')
 			#log.info("Harvesting of Catalogue: "+str(mainurl)+" started.")
 			if step=="":
 				step=""
 				i=""
 			url1=str(cat_urls[count])+str(i)+str(afterid)
 			log.info("Searching url: "+str(url1)+" for datasets.")
-			print(url1)
+			#print(url1)
 			r  = requests.get(url1)
-
-			data = r.text
-			soup = BeautifulSoup(data)
-			soup1=str(soup)
+			if '@/@xpath' in dataset_keyword:
+				dataset_keyword_temp=dataset_keyword.replace('@/@xpath','')
+				tree = html.fromstring(r.content)
+				root = tree.xpath(dataset_keyword_temp)
+				soup = BeautifulSoup(html.tostring(root[0]))
+				soup1=str(soup)
+			else:
+				data = r.text
+				soup = BeautifulSoup(data)
+				soup1=str(soup)
 
 
 			h=0
@@ -110,11 +117,11 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 			while h<len(harvested_pages):
 			  string_matching=difflib.SequenceMatcher(None,soup1,str(harvested_pages[h])).ratio()
 			  #print("--------------------------->"+str(string_matching)+'\n')
-			  print("string_matching: "+str(string_matching))
+			  #print("string_matching: "+str(string_matching))
 			  if (string_matching>=sensibility and i>1) or (string_matching>=sensibility and i>=0 and step==""):
 
 				  if break_count<5:
-					  print("*another empty/same page parsed*")
+					  #print("*another empty/same page parsed*")
 					  break_count+=1
 				  else:
 					  print('Harvester gather procedure finished..')
@@ -139,6 +146,7 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
   #--list of non label data
 				try:
 					ahref=str(link.get('href').encode('utf-8'))
+					#print(ahref)
 
 				except :
 
@@ -149,10 +157,10 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 				Pointer=0
 
 				if ("www" in ahref) or ("http" in ahref):
-				  if (dataset_keyword in ahref )or((dataset_keyword1 in ahref )):
+				  if (dataset_keyword in ahref )or(dataset_keyword1 in ahref ) or ('@/@xpath' in dataset_keyword):
 					  Pointer=1
 				else:
-				  if (ahref.startswith(dataset_keyword) )or(ahref.startswith(dataset_keyword1)):
+				  if (ahref.startswith(dataset_keyword) )or(ahref.startswith(dataset_keyword1)) or ('@/@xpath' in dataset_keyword):
 					  Pointer=1
 				if Pointer==1:
 					LastLinkCounter=1
@@ -161,7 +169,7 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 
 					if 'http' not in str(ahref):
 					  try:
-						  if mainurl[-1]=='/' or dataset_keyword[0]=='/':
+						  if mainurl[-1]=='/' or (dataset_keyword[0]=='/' and '@/@xpath' not in dataset_keyword):
 							  url2=mainurl+ahref
 						  else:
 							  url2=mainurl+'/'+ahref
@@ -180,11 +188,13 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 					  url2="http://www.valencia.es/ayuntamiento/datosabiertos.nsf"+ahref[1:]
 					if 'tirol.gv.at' in cat_urls[count]:
 					  url2="https://www.tirol.gv.at/"+ahref
+					if 'caib.es' in cat_urls[count]:
+					  url2=url2.replace('caib.es/./','caib.es/caibdatafront/')
 					if url2 not in harvested_urls:
 
-						log.info('Dataset with url: '+str(url2)+' found.')
+						#log.info('Dataset with url: '+str(url2)+' found.')
 
-						print(str(url2))
+						#print(str(url2))
 						harvested_urls.append(url2)
 						
 		except urllib2.HTTPError, e:
@@ -192,7 +202,7 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
 		  # text_file.write("404 ERROR")
 			log.info('404 Error in page with url: '+str(url1))
 			#jason="{"
-			print('i: ='+str(+i))
+			#print('i: ='+str(+i))
 		if LastLinkCounter==1:
 		  if step!="":
 			i=i+step
@@ -217,3 +227,4 @@ def ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,c
   #harvested_pages[:]=[]
   #harvested_urls[:]=[]
   return harvested_urls
+

@@ -24,7 +24,7 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 	  for x in range(0,len(soup3)):
 
 		if soup3[x]==links[j]:
-			print("===>"+str(soup3[x]))
+			
 			parent=str(soup3[x].parent.parent)
 
 			##data.belgium.be module
@@ -87,6 +87,8 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 				parent=str(soup3[x].parent.parent.parent)
 			if mainurl=="https://data.digitaliser.dk":
 				parent=str(soup3[x].parent.parent.parent.parent)
+			if mainurl=="http://www.zaragoza.es":
+				parent=str(soup3[x].parent.parent.parent)
 
 
 			parent1=BeautifulSoup(parent)
@@ -159,10 +161,15 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 
 					if counter<len(parent3)-1:
 						if string_matching>=0.9:
-							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or 'xml' in url_temp or 'json' in url_temp or 'zip' in url_temp or 'doc' in url_temp or 'txt' in url_temp  or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp or 'wfs' in url_temp or 'shape' in url_temp or 'gml' in url_temp or 'kml' in url_temp or 'wms' in url_temp or 'kmz' in url_temp or 'jpg' in url_temp:
+							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or ('xml' in url_temp and mainurl!="http://geodata.gov.gr") or('maps/?zoom=' in url_temp and mainurl=="http://geodata.gov.gr") or 'json' in url_temp or 'zip' in url_temp or 'doc' in url_temp or 'txt' in url_temp  or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp or 'wfs' in url_temp or 'shape' in url_temp or 'gml' in url_temp or 'kml' in url_temp or 'wms' in url_temp or 'kmz' in url_temp or 'jpg' in url_temp:
 								type1,filesize=CheckTypeAndFilesize(url_temp)
 								url_temp1=str(parent3[counter]['href'].encode('utf-8').lstrip())
-								if 'http://' not in url_temp1 and 'https://' not in url_temp1:
+								if 'http://' not in url_temp1 and 'https://' not in url_temp1 and mainurl!="http://geodata.gov.gr":
+									if url_temp1[0]=='/':
+										url_temp1=mainurl+url_temp1
+									else:
+										url_temp1=mainurl+'/'+url_temp1
+								if mainurl=="http://geodata.gov.gr":
 									if url_temp1[0]=='/':
 										url_temp1=mainurl+url_temp1
 									else:
@@ -187,10 +194,15 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
 
 					else:
 						if string_matching>=0.9:
-							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or 'xml' in url_temp or 'json' in url_temp or 'zip' in url_temp  or 'txt' in url_temp or 'doc' in url_temp or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp or 'wfs' in url_temp or 'shape' in url_temp or 'gml' in url_temp or 'kml' in url_temp or 'wms' in url_temp or 'kmz' in url_temp or 'jpg' in url_temp:
+							if 'jsp' in url_temp or 'pdf' in url_temp or 'csv' in url_temp or 'rdf' in url_temp or 'xls' in url_temp or '.htm' in url_temp or 'kml' in url_temp or ('xml' in url_temp and mainurl!="http://geodata.gov.gr") or('maps/?zoom=' in url_temp and mainurl=="http://geodata.gov.gr")or 'json' in url_temp or 'zip' in url_temp  or 'txt' in url_temp or 'doc' in url_temp or 'excel' in url_temp or 'aspx' in url_temp or 'gz' in url_temp or 'rss' in url_temp or 'https://ias1.larioja.org/opendata/download?recurso=' in url_temp or '/download/file/fid/' in url_temp or '/drupal7/file/' in url_temp or '/resourceunit/' in url_temp or 'wfs' in url_temp or 'shape' in url_temp or 'gml' in url_temp or 'kml' in url_temp or 'wms' in url_temp or 'kmz' in url_temp or 'jpg' in url_temp:
 								type1,filesize=CheckTypeAndFilesize(url_temp)
 								url_temp1=str(parent3[counter]['href'].encode('utf-8').lstrip().lower())
-								if 'http://' not in url_temp1 and 'https://' not in url_temp1:
+								if 'http://' not in url_temp1 and 'https://' not in url_temp1 and mainurl!="http://geodata.gov.gr":
+									if url_temp1[0]=='/':
+										url_temp1=mainurl+url_temp1
+									else:
+										url_temp1=mainurl+'/'+url_temp1
+								if mainurl=="http://geodata.gov.gr":
 									if url_temp1[0]=='/':
 										url_temp1=mainurl+url_temp1
 									else:
@@ -250,6 +262,8 @@ def AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor
   ckanjason=ckanjason+"]"
   if mainurl=="http://opendata.euskadi.eus":
 	ckanjason=ckanjason.replace(",Lege-informazioa'","").replace(",Lege informazioa'","").replace(",CC-byInformaci\xc3\xb3n legal'","").replace(",Informaci\xc3\xb3n legal'","").replace(",None'","")
+  if mainurl=="http://abertos.xunta.es":
+	ckanjason=ckanjason.replace(",Instituto de Estudos do Territorio '","")
   return ckanjason.replace("},]","}]").replace("]]","]").replace(",]","").replace(",,",",")
 
 
@@ -257,8 +271,11 @@ def CheckTypeAndFilesize(url_temp):
   #check if link contains a known type of file
 		filesize=""
 
-		print("url temp:   "+str(url_temp))
-
+		
+		if 'zip' in str(url_temp):
+			type1='zip'
+		if '.htm' in url_temp:
+			type1='html'
 		if 'jsp' in url_temp:
 			type1='jsp'
 		if 'pdf' in url_temp:
@@ -267,8 +284,6 @@ def CheckTypeAndFilesize(url_temp):
 			type1='rdf'
 		if 'xls' in url_temp:
 			type1='xls'
-		if '.htm' in url_temp:
-			type1='html'
 		if 'csv' in str(url_temp):
 			type1='csv'
 		if 'kml' in url_temp:
@@ -285,8 +300,6 @@ def CheckTypeAndFilesize(url_temp):
 			type1='viz'
 		if 'tsv' in url_temp:
 			type1='tsv'
-		if 'zip' in str(url_temp):
-			type1='zip'
 		if 'shp' in url_temp:
 			type1='shp'
 		if 'ods' in url_temp:
@@ -321,8 +334,6 @@ def CheckTypeAndFilesize(url_temp):
 			type1='rtf'
 		if 'excel' in url_temp:
 			type1='xls'
-		if 'aspx' in url_temp:
-			type1='aspx'
 		if 'gz' in url_temp:
 			type1='zip'
 		if 'rss' in url_temp:

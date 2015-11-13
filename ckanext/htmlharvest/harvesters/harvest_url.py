@@ -19,7 +19,7 @@ import uuid
 import configparser
 import logging.config
 import GetHarvestRules
-
+import AddXPathToJson
 log = logging.getLogger(__name__)
 
 # create a file handler
@@ -48,6 +48,8 @@ def harvest_url(url2,rules):
   
   
   db = client.odm
+  db_fetch_temp=db.fetch_temp
+  db_jobs=db.jobs
   try:
 	db1=db.odm
 
@@ -133,6 +135,18 @@ ckanstate,ckancity)
   soup3=soup2.findAll(text=True)
   j=0
 
+  # xpath data
+  try:
+      xpath_json = AddXPathToJson.AddToJson(r2.content,rules)
+  except:
+      xpath_json=None
+  if xpath_json is not None:
+    ckanjason += xpath_json
+  else:
+      print('xpath returned nothing')
+  #print(ckanjason)
+
+
 #for label data
   ckanjason=AddLabelToJson.AddToJson(soup3,label,j,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor_email,ckanauthor,text_file,ckanjason,a_link,ckandate_updated,ckanExtrasCategory
   ,ckanExtrasFrequency,ckanExtrasLanguage,ckanMaintainer,ckandate_released,xtras1,ckancountry,ckantemporalcoverage,ckanorganization,ckanmaintainer_email,
@@ -156,7 +170,7 @@ ckanstate,ckancity)
   ckanjason=AddLinkToJson.AddToJson(links,soup3,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor_email,ckanauthor,text_file,ckanjason,j,type1,mainurl,btn_identifier)
   j=0
 
-  print(('\n'+'\n'+'ckanjason: '+str(ckanjason.rstrip(','))+'}'))
+  print(('\n'+'\n'+'json: '+str(ckanjason.rstrip(','))+'}'))
   json2=jason.rstrip(',')+'}'
   ckanjson3=ckanjason.rstrip(',')+'}'
   ckanjsonWithoutTags=ckanjson3.replace(ckanjson3[ckanjson3.find("'tags':[{")-1:ckanjson3.find("}]")+2],'')
@@ -167,7 +181,7 @@ ckanstate,ckancity)
   try:
 
 	exec(ckanjson1)
-	if 'author' in ckanjson2.keys()  or 'license_id' in ckanjson2.keys() or 'tags' in ckanjson2.keys() or 'author_email' in ckanjson2.keys() or ('resources' in ckanjson2.keys() and len(ckanjson2['resources'])>0) or len(ckanjson2['extras'])>=3:
+	if 'author' in ckanjson2.keys()  or 'license_id' in ckanjson2.keys() or 'tags' in ckanjson2.keys() or 'author_email' in ckanjson2.keys() or 'organization' in ckanjson2.keys() or len(ckanjson2['extras'])>=3 or ('resources' in ckanjson2.keys() and len(ckanjson2['resources'])>0):
  #or len(ckanjson2['resources'])>0: #or len(ckanjson2['extras'])>=2
 		try:
 		  try:
@@ -179,17 +193,90 @@ ckanstate,ckancity)
 			  ## check if dataset exists in mongodb
 			  document=db1.find_one({"id":temp_id,"catalogue_url":mainurl})
 			  if document==None:
-				db1.save(ckanjson2)
-				log.info('Metadata stored succesfully to MongoDb.')
+				  db1.save(ckanjson2)
+				  log.info('Metadata stored succesfully to MongoDb.')
+				  fetch_document=db_fetch_temp.find_one()
+				  if fetch_document==None:
+					fetch_document={}
+					fetch_document.update({"cat_url":mainurl})
+					fetch_document.update({"new":1})
+					fetch_document.update({"updated":0})
+					db_fetch_temp.save(fetch_document)
+				  else:
+					if mainurl==fetch_document['cat_url']:
+					  new_count=fetch_document['new']
+					  new_count+=1
+					  fetch_document.update({"new":new_count})
+					  db_fetch_temp.save(fetch_document)
+					else:
+					  last_cat_url=fetch_document['cat_url']
+					  doc=db_jobs.find_one({'cat_url':fetch_document['cat_url']})
+					  if 'new' in fetch_document.keys():
+						new=fetch_document['new']
+						if 'new' in doc.keys():
+						  last_new=doc['new']
+						  doc.update({"last_new":last_new})
+						doc.update({"new":new})
+						db_jobs.save(doc)
+					  if 'updated' in fetch_document.keys():
+						updated=fetch_document['updated']
+						if 'updated' in doc.keys():
+						  last_updated=doc['updated']
+						  doc.update({"last_updated":last_updated})
+						doc.update({"updated":updated})
+						db_jobs.save(doc)
+					  fetch_document.update({"cat_url":mainurl})
+					  fetch_document.update({"new":1})
+					  fetch_document.update({"updated":0})
+					  db_fetch_temp.save(fetch_document)
 			  else:
 				if len(ckanjson2.keys())>1:
 				  met_created=document['metadata_created']
+				  if 'copied' in document.keys():
+					ckanjson2.update({'copied':document['copied']})
 				  ckanjson2.update({'updated_dataset':True})
 				  ckanjson2.update({'metadata_created':met_created})
 				  ckanjson2.update({'metadata_updated':str(datetime.datetime.now())})
-				  db1.remove({"id":temp_id,"catalogue_url":mainurl})
+				  #existing_dataset=db1.find_one({"id":temp_id,"catalogue_url":mainurl})
+				  objectid=document['_id']
+				  ckanjson2.update({"_id":objectid})
 				  db1.save(ckanjson2)
 				  log.info('Metadata updated succesfully to MongoDb.')
+				  fetch_document=db_fetch_temp.find_one()
+				  if fetch_document==None:
+					fetch_document={}
+					fetch_document.update({"cat_url":mainurl})
+					fetch_document.update({"updated":1})
+					fetch_document.update({"new":0})
+					db_fetch_temp.save(fetch_document)
+				  else:
+					if mainurl==fetch_document['cat_url']:
+					  updated_count=fetch_document['updated']
+					  updated_count+=1
+					  fetch_document.update({"updated":updated_count})
+					  db_fetch_temp.save(fetch_document)
+					else:
+					  last_cat_url=fetch_document['cat_url']
+					  doc=db_jobs.find_one({'cat_url':fetch_document['cat_url']})
+					  if 'new' in fetch_document.keys():
+						new=fetch_document['new']
+						if 'new' in doc.keys():
+						  last_new=doc['new']
+						  doc.update({"last_new":last_new})
+						doc.update({"new":new})
+						db_jobs.save(doc)
+					  if 'updated' in fetch_document.keys():
+						updated=fetch_document['updated']
+						if 'updated' in doc.keys():
+						  last_updated=doc['updated']
+						  doc.update({"last_updated":last_updated})
+						doc.update({"updated":updated})
+						db_jobs.save(doc)
+					  fetch_document.update({"cat_url":mainurl})
+					  fetch_document.update({"updated":1})
+					  fetch_document.update({"new":0})
+					  db_fetch_temp.save(fetch_document)
+
 		  except :
 			pass
 		  try:

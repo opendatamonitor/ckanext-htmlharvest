@@ -8,7 +8,7 @@ from pyvirtualdisplay import Display
 
 # coding=utf-8
 def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,sleep_time):
-  print("sleep_time "+str(sleep_time))
+  #print("sleep_time "+str(sleep_time))
   last_page_parsed=""
   html="html"
   dataset_urls=[]
@@ -33,7 +33,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,s
 	##go to next page
 	  if html!=last_page_parsed:
 		j+=1
-		print(j)
+		print("Parsing page "+str(j))
 		try:
 		  btn_identifier=int(btn_identifier)
 		  btn_identifier+=1
@@ -49,6 +49,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,s
 		soup = BeautifulSoup(html)
 		##find all links
 		links=soup.find_all('a')
+		
 		
 		##check which links are datasets
 		i=0
@@ -77,6 +78,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,s
 						else:
 						  link=mainurl+link
 			dataset_urls.append(link)
+		  	#print(link)
 		  i+=1
 		  
 		  
@@ -89,7 +91,7 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,s
 		  next_page = browser.find_element_by_link_text(btn_identifier).click()
 	  else:
 		#print(dataset_urls)
-		print(len(dataset_urls))
+		#print(len(dataset_urls))
 		break
 
   except:
@@ -102,48 +104,4 @@ def ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,s
   return dataset_urls
 
 
-##Tests
 
-
-#cat_url='http://transparencia.castillalamancha.es/opendata/encuentra/dataset'
-#main_url=''
-#dataset_identifier=""
-#btn_identifier="2"
-#action_type="link"
-
-#cat_url='http://data.gov.gr/dataset-search/'
-#main_url='http://data.gov.gr/dataset-search/'
-#dataset_identifier=""
-#btn_identifier="2"
-#action_type="link"
-
-
-#cat_url='http://opendata.cloudbcn.cat/MULTI/es/catalog'
-#main_url='http://opendata.cloudbcn.cat'
-#dataset_identifier="/opendata/es/catalog/"
-#btn_identifier="Siguiente"
-#action_type="link"
-
-
-
-#cat_url='http://opendata.paris.fr/explore/'
-#main_url='http://opendata.paris.fr/explore/'
-#dataset_identifier="dataset/"
-#btn_identifier=">>"
-#action_type="link"
-
-
-
-#cat_url="http://www.dati.piemonte.it/catalogodati/datielenco.html"
-#main_url="http://www.dati.piemonte.it"
-#dataset_identifier="/catalogodati/dato/"
-#btn_identifier="pagina_avanti"
-#action_type="class"
-
-#cat_url="http://www.dados.gov.pt/pt/catalogodados/catalogodados.aspx#sthash.5CudJdJD.dpbs"
-#main_url=""
-#dataset_identifier=""
-#btn_identifier="ContentPlaceHolderDefault_DadosGovMainContent_Datasets_6_dataPager_ctl00_NextButton"
-#action_type="id"
-
-#ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type)

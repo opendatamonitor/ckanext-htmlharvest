@@ -139,8 +139,32 @@ class HTMLHarvester(HarvesterBase):
 	  
 		print('Html Harvest Gather Stage')
 		db2 = client.odm
+		odm=db2.odm
 		collection=db2.html_jobs
 		backupi=0
+		mainurl=""
+		ctlg_url=harvest_job.source.url
+		if 'http://' in ctlg_url:
+		  mainurl1=ctlg_url[ctlg_url.find('http://')+7:]
+		  mainurl='http://'+mainurl1[0:mainurl1.find('/')]
+		if 'https://' in ctlg_url:
+		  mainurl1=ctlg_url[ctlg_url.find('https://')+8:]
+		  mainurl='https://'+mainurl1[0:mainurl1.find('/')]
+
+		##load existing datasets names and ids from mongoDb
+		datasets=list(odm.find({'catalogue_url':mainurl}))
+		if len(datasets)==0:
+			datasets=list(odm.find({'catalogue_url':harvest_job.source.url.rstrip('/')+'/'}))
+		datasets_ids=[]
+		j=0
+		while j<len(datasets):
+			datasets_ids.append(datasets[j]['url'])
+			j+=1
+		#print("==============================================")
+		#print(datasets_ids)
+		#print(len(datasets_ids))
+		#print("==============================================")
+
         ## Get source URL
 		source_url = harvest_job.source.url
 		## mongoDb connection
@@ -157,12 +181,32 @@ class HTMLHarvester(HarvesterBase):
 			except:
 				sleep_time=3
 			package_ids=javascript_case.ParseJavascriptPages(cat_url,dataset_identifier,btn_identifier,action_type,sleep_time)
-			print(package_ids)
+			#print(package_ids)
 		  else:
 			package_ids=harvester_final.read_data(id1,backupi)
 		else:
 			package_ids=harvester_final.read_data(id1,backupi)
-		print(package_ids)
+		#print(package_ids)
+
+		##check for deleted datasets that exist in mongo
+		count_pkg_ids=0
+		if len(package_ids)>0:
+			while count_pkg_ids<len(package_ids):
+				temp_pckg_id=package_ids[count_pkg_ids]
+				if temp_pckg_id in datasets_ids:
+					datasets_ids.remove(temp_pckg_id)
+				count_pkg_ids+=1
+			j=0
+			while j<len(datasets_ids):
+				i=0
+				while i<len(datasets):
+					if datasets_ids[j] == datasets[i]['url']:
+						document=datasets[i]
+						document.update({"deleted_dataset":True})
+						odm.save(document)
+					i+=1
+				j+=1
+
 		#print(len(package_ids))
 		#package_ids=[]
 		#package_ids.append('http://data.belgium.be/dataset/mortality-tables-gender')
@@ -206,7 +250,7 @@ class HTMLHarvester(HarvesterBase):
 		try:
 		  rules=GetHarvestRules.GetHarvestRules(str(mainurl))
 		except:rules=""
-		print(rules)
+		#print(rules)
 		if rules!="":
 		  if 'rdf' in rules.keys():
 			if rules['rdf']!='' and rules['rdf']!=None:

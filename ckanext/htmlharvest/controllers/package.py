@@ -34,7 +34,7 @@ config.read('/var/local/ckan/default/pyenv/src/ckan/development.ini')
 mongoclient=config['ckan:odm_extensions']['mongoclient']
 mongoport=config['ckan:odm_extensions']['mongoport']
 
-
+xpath_attrs = []
 #--list of non label data
 nonlabel=[]
 # list of label data
@@ -115,7 +115,7 @@ class CustomHtmlHarvestController(PackageController):
 		  if title=="":
 			  errors =errors+", Invalid title "
 		  vars = {'data': data, 'errors': str(errors)}
-		  
+
 		  return render('htmlharvest.html', extra_vars=vars)
 	    except KeyError:
 		#cat_url=""
@@ -128,9 +128,9 @@ class CustomHtmlHarvestController(PackageController):
 		data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(request.POST))))
 	    else:
 		errors=''
-		
+
 		language=str(data['language'])
-		step=str(data['step'])	
+		step=str(data['step'])
 		cat_url=str(data['cat_url'].encode('utf-8'))
 		url=str(data['url'])
 		if 'http' not in cat_url and len(url)<8:
@@ -160,7 +160,7 @@ class CustomHtmlHarvestController(PackageController):
 		  return render('htmlharvest1.html', extra_vars=vars)
 
 
-		
+
 		if 'https' not in url:
 			mainurl1=url[url.find('http://')+7:]
 			mainurl='http://'+mainurl1[0:mainurl1.find('/')]
@@ -213,24 +213,30 @@ class CustomHtmlHarvestController(PackageController):
 			data.update({"temporal_coverage":str(SearchForJobExistance['temporal_coverage'].encode('utf-8'))})
 			#data.update({"cat_url":str(SearchForJobExistance['cat_url'].encode('utf-8'))})
 			#data.update({"step":str(SearchForJobExistance['step'].encode('utf-8'))})
-			#data.update({"identifier":str(SearchForJobExistance['identifier'].encode('utf-8'))})	
+			#data.update({"identifier":str(SearchForJobExistance['identifier'].encode('utf-8'))})
 			data.update({"organization":str(SearchForJobExistance['organization'].encode('utf-8'))})
 			data.update({"maintainer_email":str(SearchForJobExistance['maintainer_email'].encode('utf-8'))})
 			data.update({"state":str(SearchForJobExistance['state'].encode('utf-8'))})
 			data.update({"city":str(SearchForJobExistance['city'].encode('utf-8'))})
 			data.update({"jobExists":str(SearchForJobExistance)})
+
+                        print("=====================")
 			log.info(str(data))
 			#collection1.remove(SearchForJobExistance)
-		vars = {'data': data, 'errors': errors}
+
+                vars = {'data': data, 'errors': errors}
 	        package_type = self._guess_package_type(True)
 	        template = self._read_template(package_type)
 	        return render('htmlharvest.html', extra_vars=vars)
 
 	    if notes!="":
-
 		    url=str(data['url'])
 		   # name=data['name']
 		    identifier=str(data['identifier'])
+		    identifier_identifier=''
+		    if data['dataset_identifier_checkbox']=='on' and identifier!='':
+
+		    	identifier_identifier='@/@xpath'
 		    #title=data['title']
 		    cat_url=data['cat_url']
 		    step=data['step']
@@ -241,10 +247,10 @@ class CustomHtmlHarvestController(PackageController):
 			  errors ="Invalid title "
 			  vars = {'data': data, 'errors': str(errors)}
 			  return render('htmlharvest.html', extra_vars=vars)
-			
+
 		    #url=str(data['url'])
 		    language=str(data['language'])
-		   # step=str(data['step'])	
+		   # step=str(data['step'])
 		    #cat_url=str(data['cat_url'])
 		    #after_url=str(data['afterurl'])
 		    catalogue_date_created=str(data['catalogue_date_created'])
@@ -263,20 +269,24 @@ class CustomHtmlHarvestController(PackageController):
 		    collection2=db3.html_jobs
 
 		    #text_file.write("title:   "+str(title.encode('utf-8')))
-
-		    if title!='':
+		    title_identifier='value'
+		    if 'title-checkbox' in data.keys() and data['title-checkbox']=='on' and title!='':
+		    	#title1 = xpath_attrs.append(title)
+		    	title1=data['title']
+		    	title_identifier='xpath'
+		    elif title!='':
 			nonlabel.append(title)
 			title1=SaveLabels.NoLabelDataGetDiv(url,nonlabel)
 		    else: title1=""
 		    nonlabel[:]=[]
 
-		#-- edit --   job creation   
+		#-- edit --   job creation
 		    (notes,notes_feature)=MetadataFinder.MetadataFinder('notes_feature','notes',data,url)
 		    (author1,author_feature)=MetadataFinder.MetadataFinder('author_feature','author',data,url)
 		    (country1,country_feature)=MetadataFinder.MetadataFinder('country_feature','country',data,url)
 		    (temporal_coverage1,temporal_coverage_feature)=MetadataFinder.MetadataFinder('temporal_coverage_feature','temporal_coverage',data,url)
-		    (date_released1,date_released_feature)=MetadataFinder.MetadataFinder('date_released_feature','date_released',data,url)		   
-		    
+		    (date_released1,date_released_feature)=MetadataFinder.MetadataFinder('date_released_feature','date_released',data,url)
+
 		    (author_email1,author_email_feature)=MetadataFinder.MetadataFinder('author_email_feature','author_email',data,url)
 		    (tags1,tags_feature)=MetadataFinder.MetadataFinder('tags_feature','tags',data,url)
 		    (resource1,resource_feature)=MetadataFinder.MetadataFinder('resource_feature','resource',data,url)
@@ -287,11 +297,11 @@ class CustomHtmlHarvestController(PackageController):
 		    (maintainer1,maintainer_feature)=MetadataFinder.MetadataFinder('maintainer_feature','maintainer',data,url)
 		    (date_updated1,date_updated_feature)=MetadataFinder.MetadataFinder('date_updated_feature','date_updated',data,url)
 		    (organization1,organization_feature)=MetadataFinder.MetadataFinder('organization_feature','organization',data,url)
-		    (maintainer_email1,maintainer_email_feature)=MetadataFinder.MetadataFinder('maintainer_email_feature','maintainer_email',data,url)		   
+		    (maintainer_email1,maintainer_email_feature)=MetadataFinder.MetadataFinder('maintainer_email_feature','maintainer_email',data,url)
 		    (state1,state_feature)=MetadataFinder.MetadataFinder('state_feature','state',data,url)
 		    (city1,city_feature)=MetadataFinder.MetadataFinder('city_feature','city',data,url)
 		    language=str(data['language'])
-		
+
 
 
 
@@ -301,8 +311,8 @@ class CustomHtmlHarvestController(PackageController):
 
 		    db2 = client.odm
 		    collection=db2.possible_labels
-		    post_id=bson.ObjectId("537205927fd8852efdaf217c")
-		    autolabels=collection.find_one({"_id":post_id})
+		    autolabels=collection.find_one()
+		    ##ToDo Load from txt file if json does not exist
 
 		    if license_feature=='label' and not any(license1.decode('utf-8').strip() in s for s in autolabels['license']):
 		    	autolabels['license'].append(license1.strip())
@@ -356,9 +366,16 @@ class CustomHtmlHarvestController(PackageController):
 		    	autolabels['city'].append(city1.strip())
 		    #collection.save(autolabels)
 
-
+		    resource_value=None
+		    resource_value_identifier=None
+		    if 'resource-checkbox' in data.keys() and data['resource-checkbox']=='on':
+			  resource1=data['resource']			
+			  resource_value_identifier='xpath'
+		    else:
+			  resource_value_identifier=resource_feature
 	 	##Job's json creation
-	  	    job={'btn_identifier':btn_identifier,'action_type':action_type,'url':url,'rdf':rdf,'cat_url':cat_url,'step':step,'afterurl':after_url,'identifier':identifier,'title':title,'notes':notes.strip()+'@/@'+notes_feature.encode('utf-8'),'author':author1.strip()+'@/@'+author_feature.encode('utf-8'),'date_released':date_released1.strip()+'@/@'+date_released_feature.encode('utf-8'),'author_email':author_email1.strip()+'@/@'+author_email_feature.encode('utf-8'),'tags':tags1.strip()+'@/@'+tags_feature.encode('utf-8'),'resource':resource1.strip()+'@/@'+resource_feature.encode('utf-8'),'license':license1.strip()+'@/@'+license_feature.encode('utf-8'),'title':title1+'@/@value','category':category1.strip()+'@/@'+category_feature.encode('utf-8'),'language':language_mappings[language],'frequency':frequency1.strip()+'@/@'+frequency_feature.encode('utf-8'),'maintainer':maintainer1.strip()+'@/@'+maintainer_feature.encode('utf-8'),'date_updated':date_updated1.strip()+'@/@'+date_updated_feature.encode('utf-8'),'country':country1.strip()+'@/@'+country_feature.encode('utf-8'),'organization':organization1.strip()+'@/@'+organization_feature.encode('utf-8'),'maintainer_email':maintainer_email1.strip()+'@/@'+maintainer_email_feature.encode('utf-8'),'state':state1.strip()+'@/@'+state_feature.encode('utf-8'),'city':city1.strip()+'@/@'+city_feature.encode('utf-8'),'temporal_coverage':temporal_coverage1.strip()+'@/@'+temporal_coverage_feature.encode('utf-8'),'type':'html'}
+	  	    job={'btn_identifier':btn_identifier,'action_type':action_type,'url':url,'rdf':rdf,'cat_url':cat_url,'step':step,'afterurl':after_url,'identifier':identifier+identifier_identifier,'notes':notes.strip()+'@/@'+notes_feature.encode('utf-8'),'author':author1.strip()+'@/@'+author_feature.encode('utf-8'),'date_released':date_released1.strip()+'@/@'+date_released_feature.encode('utf-8'),'author_email':author_email1.strip()+'@/@'+author_email_feature.encode('utf-8'),'tags':tags1.strip()+'@/@'+tags_feature.encode('utf-8'),'resource':resource1.strip()+'@/@'+resource_value_identifier,'license':license1.strip()+'@/@'+license_feature.encode('utf-8'),'title':title1+'@/@'+title_identifier,'category':category1.strip()+'@/@'+category_feature.encode('utf-8'),'language':language_mappings[language],'frequency':frequency1.strip()+'@/@'+frequency_feature.encode('utf-8'),'maintainer':maintainer1.strip()+'@/@'+maintainer_feature.encode('utf-8'),'date_updated':date_updated1.strip()+'@/@'+date_updated_feature.encode('utf-8'),'country':country1.strip()+'@/@'+country_feature.encode('utf-8'),'organization':organization1.strip()+'@/@'+organization_feature.encode('utf-8'),'maintainer_email':maintainer_email1.strip()+'@/@'+maintainer_email_feature.encode('utf-8'),'state':state1.strip()+'@/@'+state_feature.encode('utf-8'),'city':city1.strip()+'@/@'+city_feature.encode('utf-8'),'temporal_coverage':temporal_coverage1.strip()+'@/@'+temporal_coverage_feature.encode('utf-8'),'type':'html'}
+
 
 		    log.info('\n'+'this is json: '+str(job)+'\n')
 		    SearchForJobExistance=list(collection2.find({'cat_url':str(cat_url)}));
@@ -410,7 +427,7 @@ class CustomHtmlHarvestController(PackageController):
 			  vars = {'data': data, 'errors': str(ex)}
 			  return render('htmlharvest1.html', extra_vars=vars)
 		    #dataset_dict.update({'catalogue_date_created':str(catalogue_date_created),'catalogue_date_updated':str(catalogue_date_updated),'catalogue_country':str(catalogue_country)})
-		    
+
 
 		    # we don't want to include save as it is part of the form
 
@@ -480,4 +497,4 @@ class CustomHtmlHarvestController(PackageController):
         return render(template, loader_class='html')
 
 
-	
+

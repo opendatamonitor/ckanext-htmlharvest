@@ -79,16 +79,12 @@ def AddToJson(soup3,label,j,ckannotes,ckanlicense,ckanresource,ckantags,ckanauth
 
 
 	#if any(label[j] in s for s in soup3):
-				print(label[j])
+				#print(label[j])
 	#	for x in range(0,len(soup3)):
 
 			#if(soup3[x]==label[j]):
-				###print("EDW TESTAROUME: ->"+'\n')
-				###text_value=soup3[x].next_sibling.find_all(text=True)
-				###print(text_value)
-				###print('\n')
-				parent=str(soup3[x].parent.parent)
-				#edw tha dokimasw to next sibling na dw ti tha apodosei.
+				
+				parent=str(soup3[x].parent.parent).replace('\r','').replace('\t','').replace('\n','').replace('                   ','').replace("\xa0","").replace("     ","")
 				parent1=BeautifulSoup(parent.decode('utf-8','ignore'))
 				parent2=parent1.find_all(text=True)
 				i1=0
@@ -100,7 +96,7 @@ def AddToJson(soup3,label,j,ckannotes,ckanlicense,ckanresource,ckantags,ckanauth
 						del parent2[i1]
 					i1+=1
 				
-
+				#print(parent2)
 				if len(parent2)==1:
 
 					parent=str(soup3[x].parent.parent.parent)
@@ -157,7 +153,7 @@ def AddToJson(soup3,label,j,ckannotes,ckanlicense,ckanresource,ckantags,ckanauth
 					i5=0
 					i4+=1
 				
-				print(str(parent2))
+				
 				#---- check if label.next was found
 				if len(parent2)>1:
 
@@ -375,7 +371,7 @@ def HandleResourcesAndLabelElements(ckanresource,parent2,counter,a_link,string_m
 				  type1,filesize=AddLinkToJson.CheckTypeAndFilesize(url_temp)
 				  ckanjasontemp=ckanjasontemp+"{'name': '"+str(parent2[counter-1].encode('utf-8'))+"','url':'"+str(a_link[counter-2])+"'"+",'format':"+"'"+type1+"'"+',"size":'+"'"+str(filesize)+"'"+"},"
 			  if len(a_link)<=1:
-				  print("type1:  "+str(type1))
+				 
 				  type1,filesize=AddLinkToJson.CheckTypeAndFilesize(url_temp)
 				  ckanjasontemp=ckanjasontemp+"{'name': '"+str(parent2[counter-1].encode('utf-8'))+"','url':'"+str(a_link[counter-2])+"'"+",'format':"+"'"+type1+"'"+',"size":'+"'"+str(filesize)+"'"+"}],"
 			  else:ckanjasontemp=ckanjasontemp+"{'name': '"+str(parent2[counter].encode('utf-8'))+"','url':'"+"'},"

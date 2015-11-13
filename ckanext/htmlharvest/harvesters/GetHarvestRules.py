@@ -28,13 +28,14 @@ client = pymongo.MongoClient(str(mongoclient), int(mongoport))
 def GetHarvestRules(cat_url):
 	commands=[]
 	label=[]
+	xpath = {}
 	links=[]
 	rules={}
 	db2 = client.odm
 	collection=db2.html_jobs
 	
 	##find the cat_url's rules in mongoDB
-	print(cat_url)
+	#print(cat_url)
 	document=collection.find_one({"cat_url":{'$regex': cat_url}})
 	if document==None:
 		document=collection.find_one({"url":{'$regex': cat_url}})
@@ -49,9 +50,8 @@ def GetHarvestRules(cat_url):
 	rules.update({"url":str(url1)})
 	url=str(job['cat_url'].encode('utf-8'))
 	rules.update({"cat_url":str(url)})
-	try:
+	if 'btn_identifier' in rules.keys():
 		rules.update({"btn_identifier":str(job['btn_identifier'])})
-	except:pass
 	id1=str(job['step'])
 	if id1!=None and id1!="":
 	  rules.update({"step":int(id1)})
@@ -79,7 +79,9 @@ def GetHarvestRules(cat_url):
 	
 	title=job['title']
 	title1=title.split('@/@')
-	if title1[0]!="":
+	if title1[1]=='xpath' and title1[0]:
+		xpath['title']=title1[0]
+	elif title1[0]!="":
 	  commands.append(title1[0])
 	ckantitle=title1[0]
 	rules.update({"title":str(ckantitle)})
@@ -163,6 +165,8 @@ def GetHarvestRules(cat_url):
 
 	resource=job['resource']
 	resource1=resource.split('@/@')
+	if resource1[1]=='xpath' and resource1[0]!='':
+		xpath['resource']=resource1[0]
 	if resource1[1]=='value' and resource1[0]!='':
 		commands.append(resource1[0])
 	if resource1[1]=='label' and resource1[0]!='':
@@ -285,6 +289,7 @@ def GetHarvestRules(cat_url):
 	rules.update({"label":label})
 	rules.update({"links":links})
 	rules.update({"commands":commands})
+	rules.update({'xpath':xpath})
 	try:
 	  step=int(id1)
 	except:

@@ -10,6 +10,7 @@ import logging
 import pymongo
 import bson
 import configparser
+import LoadPossibleLabels
 
 ##read from development.ini file all the required parameters
 config = configparser.ConfigParser()
@@ -28,11 +29,20 @@ client = pymongo.MongoClient(str(mongoclient), int(mongoport))
 def AutoFindingElements(url):
 
   try:
+
 		#Database Connection
 		db = client.odm
-		collection=db.possible_labels
-		post_id=bson.ObjectId("537205927fd8852efdaf217c")
-		possiblelabels=collection.find_one({"_id":post_id})
+		try:
+		  collection=db.possible_labels
+		  possiblelabels=collection.find_one()
+		except:
+		  possiblelabels=None
+		
+		if possiblelabels==None or len(possiblelabels.keys())<1:
+		  possiblelabels=LoadPossibleLabels.possible_labels
+		  collection=db.possible_labels
+		  collection.save(possiblelabels)
+
 
 		labelLicense=possiblelabels['license']
 		labelTags=possiblelabels['tags']
@@ -91,7 +101,7 @@ def AutoFindingElements(url):
 		,"temporal_coverage":str(labeltemporalcoverage1[0].encode('utf-8')),"frequency":str(labelfrequency1[0].encode('utf-8'))
 		,"language":str(labellanguage1[0].encode('utf-8')),"maintainer":str(labelmaintainer1[0].encode('utf-8')),"notes":str(labelnotes1[0].encode('utf-8')),"author":str(labelauthor1[0].encode('utf-8'))
 		,"resource":str(labelresource1[0].encode('utf-8')),"date_updated":str(labeldate_updated1[0].encode('utf-8')),"organization":str(labelorganization1[0].encode('utf-8')),"maintainer_email":str(labelmaintainer_email1[0].encode('utf-8')),"state":str(labelstate1[0].encode('utf-8')),"city":str(labelcity1[0].encode('utf-8'))}
-  #print(json)
+  
   return json
 
 

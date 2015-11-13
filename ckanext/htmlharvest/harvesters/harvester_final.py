@@ -105,20 +105,20 @@ def StartHarvestProcedure(commands,label,links,url,step,afterid,endpoint,dataset
 	except AttributeError as e:
 	        log.warn('error: {0}', e)
 
-	document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
-        {"$match": {"elements": {"$gt":0}}},
-        {"$sort":{"elements":-1}}])
-	j=0
-	while j<len(document['result']):
-		ids.append(document['result'][j]['_id'])
-		j+=1
+	#document=db1.aggregate([{ "$group" :{"_id" : "$id", "elements" : { "$sum" : 1}}},
+        #{"$match": {"elements": {"$gt":0}}},
+        #{"$sort":{"elements":-1}}])
+	#j=0
+	#while j<len(document['result']):
+		#ids.append(document['result'][j]['_id'])
+		#j+=1
 
 
 # call harvest procedure function:
 
 	dataset_urls=HarvestProcedure.ProcedureWithNext(soup1,dataset_keyword,dataset_keyword1,mainurl,text_file,ckanjason,commands,ckannotes,ckanlicense,ckanresource,ckantags,ckanauthor_email,ckanauthor,j,label,k,a_link,
 			  links,type1,jason,db1,endpoint,url,i,afterid,step,ckantitle,ckandate_updated,ckanExtrasCategory,ckanExtrasFrequency,ckanExtrasLanguage,ckanMaintainer,ckandate_released
-			  ,ckancountry,ckantemporalcoverage,ckanorganization,ckanmaintainer_email,ckanstate,ckancity,ids)
+			  ,ckancountry,ckantemporalcoverage,ckanorganization,ckanmaintainer_email,ckanstate,ckancity)
 	return dataset_urls
 
 
@@ -139,7 +139,10 @@ def read_data(temp_id,backupi):
 
 
 	dataset_keyword2=str(job['identifier'])
-	if ',' in dataset_keyword2:
+	if '@/@xpath' in dataset_keyword2:
+		dataset_keyword=dataset_keyword2
+		dataset_keyword1="nothingatall"
+	elif ',' in dataset_keyword2 and '@/@xpath' not in dataset_keyword2:
 		dataset_keyword3=dataset_keyword2.split(',')
 		dataset_keyword=dataset_keyword3[0]
 		dataset_keyword1=dataset_keyword3[1]

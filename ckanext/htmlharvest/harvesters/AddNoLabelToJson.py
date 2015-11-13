@@ -24,7 +24,6 @@ ckanExtrasFrequency,ckanExtrasLanguage,ckanMaintainer,ckandate_released,ckancoun
 	  command2="nolabel1="+command.replace('text_file.write(str(','').replace(".encode('utf-8').lstrip().rstrip()))",'')
 
 
-	#text_file.write('\n')
 
 	try:
 		exec command2
@@ -78,9 +77,9 @@ ckanExtrasFrequency,ckanExtrasLanguage,ckanMaintainer,ckandate_released,ckancoun
 			exec command1
 		except (IndexError,AttributeError):
 			nothing=""
-			#print('AttributeError')
+			
 
-	#text_file.write('\n')
+
 	counterl=counterl+1
 
   return (ckanjason, xtras1)

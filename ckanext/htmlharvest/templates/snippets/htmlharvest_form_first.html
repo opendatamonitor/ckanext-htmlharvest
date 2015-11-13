@@ -55,36 +55,88 @@ action='read_data') %}
             </span>
         {% endcall %}
 
-{% call form.input('step', id='step', label=_("Step"),
+
+
+
+
+
+
+
+
+    
+      <div class="col-lg-12">
+        <div class="panel-group" id="accordion">
+
+
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                  Html
+                </a>
+              </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+              <div class="panel-body">
+                
+               {% call form.input('step', id='step', label=_("Step"),
         value=data.step, error=errors.step, classes=['control-full',
         'control-xlarge']) %}
             <span class="info-block">
                 {{ _("This is the ids difference from one page of data catalogue to the next one(for example if first pages id=0 and next page's is 1 the step is 1") }}
             </span>
         {% endcall %}
+                
+      
+               </div>
+            </div>
+          </div>
+
+	<div class="accordion-group">
+            <div class="accordion-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                  Javascript
+                </a>
+              </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+              <div class="panel-body">
+               
+               
+		{% call form.input('btn_identifier', id='btn_identifier', label=_("Button Identifier"),
+			value=data.btn_identifier, error=errors.btn_identifier, classes=['control-full',
+			'control-xlarge']) %}
+			    <span class="info-block">
+				{{ _("This is the button identifier for javascript based pages") }}
+			    </span>
+			{% endcall %}
+		
+
+
+		{{ form.select('action_type', id='action_type',
+			    label=_('Action Type'), options=[{ "value": "id", "text": "id" },
+			    {'value':'class', 'text':'class'},{'value':'link', 'text':'link'}], error=errors.category_feature) }} 
+                
+  
+               </div>
+            </div>
+          </div>	
+
+
+	</div>
+	</div>
+          
         
 
 
-{% call form.input('btn_identifier', id='btn_identifier', label=_("Button Identifier"),
-        value=data.btn_identifier, error=errors.btn_identifier, classes=['control-full',
-        'control-xlarge']) %}
-            <span class="info-block">
-                {{ _("This is the button identifier for javascript based pages") }}
-            </span>
-        {% endcall %}
-        
-
-
-{{ form.select('action_type', id='action_type',
-            label=_('Action Type'), options=[{ "value": "id", "text": "id" },
-            {'value':'class', 'text':'class'},{'value':'link', 'text':'link'}], error=errors.category_feature) }} 
 
 <br></br>
 <input name="afterurl" value="{{ data.afterurl}}" type="hidden"/>
 
 
 
-
+{#
 {% block package_basic_fields_tags %}
         {% set identifier_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
             {{ form.input('identifier', id='field-identifier', label=_('Dataset
@@ -92,6 +144,20 @@ action='read_data') %}
             error=errors.identifier, classes=['control-full']) }}
 	
         {% endblock %}
+
+#}
+
+<div class="control-group control-custom">
+            <label class="control-label" for="identifier-id"> {{ _('Dataset Identifier') }}</label>
+            <div class="controls control-full">
+                <input id="field-identifier" type="text" name="identifier" value="{{ data.identifier }}" data-module="slug-preview-target" style="width:85%"/>
+                <div class="input-prepend" >
+                    <label class="checkbox" for="field-identifier-checkbox">
+                        <input type="checkbox" id="field-identifier-checkbox" name="dataset_identifier_checkbox" /> <span>{{ _('XPath') }}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
 
 
  {% call form.input('url', id='entrydata12', label=_("Dataset's URL"),
@@ -292,6 +358,15 @@ $(document).ready(function (){
 
 </script>
 
+{% block content %}
 
+  {% resource 'htmlharvest/jquery.dom-outline-1.0.js' %}
+
+  <button data-module="jquery_dom_outline"
+          class="btn"
+          href="#">
+    <i class="icon-info-sign"></i>
+  </button>
+{% endblock %}
 
 </form>
