@@ -1,12 +1,17 @@
 ckanext-htmlharvest
 ==========================
 
-A harvester to allow CKAN directories to keep in sync with catalogues  that do not provide the data threw an API service.
-The ckanext-htmlharvest plugin uses the mongo DB as metadata repository and developed as part of the ODM project (www.opendatamonitor.eu).
+A harvester to allow CKAN directories to keep in sync with catalogues that do not provide the data threw an API service.
 
 In order to use this tool, you need to have the CKAN harvester extension (https://github.com/okfn/ckanext-harvest)
 installed and loaded for your CKAN instance.
 Tested with CKAN v2.2 (http://docs.ckan.org/en/ckan-2.2/).
+
+General
+---------
+
+The ckanext-htmlharvest is based on Html scrapping. It tries to extract information from the HTML pages. Uses the Python library BeautifulSoup for parsing the HTML code and Selenium library for javascript pagination.
+The ckanext-htmlharvest plugin uses the mongo DB as metadata repository and developed as part of the ODM project (www.opendatamonitor.eu).
 
 Building
 ---------
@@ -31,8 +36,6 @@ After setting this up, you should be able to go to:
 
 Select Register a new Catalogue
 Select the HTML radiobutton
-
-And have a new "HTML" harvest type show up when creating sources.
 
 
 Licence
