@@ -13,7 +13,7 @@ Building
 
 To build and use this plugin, simply:
 
-    git clone git@github.com:opendatamonitor/ckanext-htmlharvest.git
+    git clone https://github.com/opendatamonitor/ckanext-htmlharvest.git
     cd ckanext-htmlharvest
     pip install -r pip-requirements.txt
     python setup.py develop
