@@ -1,7 +1,7 @@
 ckanext-htmlharvest
 ==========================
 
-A harvester to allow CKAN directories to keep in sync with catalogues that do not provide API.
+A harvester to allow CKAN directories to keep in sync with catalogues  that do not provide the data threw an API service.
 The ckanext-htmlharvest plugin uses the mongo DB as metadata repository and developed as part of the ODM project (www.opendatamonitor.eu).
 
 In order to use this tool, you need to have the CKAN harvester extension (https://github.com/okfn/ckanext-harvest)
