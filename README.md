@@ -22,6 +22,8 @@ To build and use this plugin, simply:
     cd ckanext-htmlharvest
     pip install -r requirements.txt
     python setup.py develop
+    
+You also need to install PhantomJS.
 
 Then you will need to update your CKAN configuration to include the new harvester.  This will mean adding the
 ckanext-genericapiharvest plugin as a plugin.  E.g.
